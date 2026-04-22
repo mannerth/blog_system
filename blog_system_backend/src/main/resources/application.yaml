@@ -1,5 +1,5 @@
 server:
-  port: ${SERVER_PORT}
+  port: ${SERVER_PORT:8080}
 spring:
   application:
     name: blog_system_backend
@@ -13,3 +13,13 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+
+security:
+  jwt:
+    secret: ${JWT_SECRET:change-me-to-a-very-long-secret-key-at-least-32-characters}
+    expiration-ms: ${JWT_EXPIRATION_MS:86400000}
+
+app:
+  admin:
+    username: ${ADMIN_USERNAME:}
+    password: ${ADMIN_PASSWORD:}
