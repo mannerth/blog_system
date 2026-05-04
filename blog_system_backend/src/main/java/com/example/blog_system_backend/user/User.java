@@ -29,7 +29,7 @@ public class User {
     @Column(nullable = false, length = 20)
     private Role role;
 
-    @Column(nullable = false)
+    @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     public Long getId() {

@@ -3,6 +3,7 @@ package com.example.blog_system_backend.auth;
 import com.example.blog_system_backend.auth.dto.AuthResponse;
 import com.example.blog_system_backend.auth.dto.LoginRequest;
 import com.example.blog_system_backend.auth.dto.RegisterRequest;
+import com.example.blog_system_backend.common.UsernameAlreadyExistsException;
 import com.example.blog_system_backend.security.JwtService;
 import com.example.blog_system_backend.user.Role;
 import com.example.blog_system_backend.user.User;
@@ -37,7 +38,7 @@ public class AuthService {
     public AuthResponse register(RegisterRequest request) {
         String username = request.username().trim();
         if (userRepository.existsByUsername(username)) {
-            throw new IllegalArgumentException("username already exists");
+            throw new UsernameAlreadyExistsException(username);
         }
 
         User user = new User();
