@@ -2,12 +2,9 @@ package com.example.blog_system_backend.tag;
 
 import com.example.blog_system_backend.common.TagNameAlreadyExistsException;
 import com.example.blog_system_backend.common.TagNotFoundException;
-import com.example.blog_system_backend.common.UserNotFoundException;
 import com.example.blog_system_backend.tag.dto.TagCreateRequest;
 import com.example.blog_system_backend.tag.dto.TagResponse;
 import com.example.blog_system_backend.tag.dto.TagUpdateRequest;
-import com.example.blog_system_backend.user.User;
-import com.example.blog_system_backend.user.dto.UserProfileResponse;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 

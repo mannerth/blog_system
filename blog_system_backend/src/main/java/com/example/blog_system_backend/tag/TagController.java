@@ -3,7 +3,6 @@ package com.example.blog_system_backend.tag;
 import com.example.blog_system_backend.tag.dto.TagCreateRequest;
 import com.example.blog_system_backend.tag.dto.TagResponse;
 import com.example.blog_system_backend.tag.dto.TagUpdateRequest;
-import com.example.blog_system_backend.user.dto.UserUpdateRequest;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
