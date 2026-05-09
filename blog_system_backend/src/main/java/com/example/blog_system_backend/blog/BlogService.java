@@ -1,0 +1,151 @@
+package com.example.blog_system_backend.blog;
+
+import com.example.blog_system_backend.blog.dto.BlogCreateRequest;
+import com.example.blog_system_backend.blog.dto.BlogResponse;
+import com.example.blog_system_backend.blog.dto.BlogUpdateRequest;
+import com.example.blog_system_backend.category.Category;
+import com.example.blog_system_backend.category.CategoryRepository;
+import com.example.blog_system_backend.common.BlogNotAllowedToModifyException;
+import com.example.blog_system_backend.tag.Tag;
+import com.example.blog_system_backend.tag.TagRepository;
+import com.example.blog_system_backend.user.User;
+import com.example.blog_system_backend.user.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+@Service
+public class BlogService {
+
+    private final BlogRepository blogRepository;
+    private final CategoryRepository categoryRepository;
+    private final TagRepository tagRepository;
+    private final UserRepository userRepository;
+
+    public BlogService(BlogRepository blogRepository, CategoryRepository categoryRepository, TagRepository tagRepository, UserRepository userRepository) {
+        this.blogRepository = blogRepository;
+        this.categoryRepository = categoryRepository;
+        this.tagRepository = tagRepository;
+        this.userRepository = userRepository;
+    }
+
+    public BlogResponse getById(Long id) {
+        return toResponse(findById(id));
+    }
+
+    // ===================== 分页查询所有博客（首页） =====================
+    public Page<BlogResponse> getAll(Pageable pageable) {
+        return blogRepository.findAll(pageable).map(this::toResponse);
+    }
+
+    // ===================== 根据用户ID查询博客 =====================
+    public Page<BlogResponse> getByUserId(Long userId, Pageable pageable) {
+        return blogRepository.findByUserId(userId, pageable).map(this::toResponse);
+    }
+
+    // ===================== 根据分类ID查询博客 =====================
+    public Page<BlogResponse> getByCategoryId(Long categoryId, Pageable pageable) {
+        return blogRepository.findByCategoryId(categoryId, pageable).map(this::toResponse);
+    }
+
+    // ===================== 根据标签ID查询博客 =====================
+    public Page<BlogResponse> getByTagId(Long tagId, Pageable pageable) {
+        return blogRepository.findByTagsId(tagId, pageable).map(this::toResponse);
+    }
+
+    public Page<BlogResponse> getByTagIds(Collection<Long> tagIds, Pageable pageable) {
+        return blogRepository.findByTagsIdIn(tagIds, pageable).map(this::toResponse);
+    }
+
+    public Page<BlogResponse> search(String keyword, Pageable pageable) {
+        return blogRepository.findByTitleContainingOrContentContaining(keyword, keyword, pageable)
+                .map(this::toResponse);
+    }
+
+    public BlogResponse create(BlogCreateRequest request, Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("用户不存在"));
+
+        Category category = categoryRepository.findById(request.categoryId())
+                .orElseThrow(() -> new EntityNotFoundException("分类不存在"));
+
+        Set<Tag> tags = new HashSet<>();
+        if (request.tagIds() != null && !request.tagIds().isEmpty()) {
+            tags = new HashSet<>(tagRepository.findAllById(request.tagIds()));
+        }
+
+        Blog blog = new Blog();
+        blog.setTitle(request.title());
+        blog.setContent(request.content());
+        blog.setUser(user);
+        blog.setCategory(category);
+        blog.setTags(tags);
+
+        return toResponse(blogRepository.save(blog));
+    }
+
+    public BlogResponse update(Long id, BlogUpdateRequest request, Long loginUserId) {
+        Blog blog = findById(id);
+
+        if (!blog.getUser().getId().equals(loginUserId)) {
+            throw new BlogNotAllowedToModifyException(loginUserId);
+        }
+
+        if (request.title() != null) {
+            blog.setTitle(request.title());
+        }
+        if (request.content() != null) {
+            blog.setContent(request.content());
+        }
+        if (request.categoryId() != null) {
+            Category category = categoryRepository.findById(request.categoryId())
+                    .orElseThrow(() -> new EntityNotFoundException("分类不存在"));
+            blog.setCategory(category);
+        }
+        if (request.tagIds() != null) {
+            Set<Tag> tags = tagRepository.findAllById(request.tagIds()).stream().collect(Collectors.toSet());
+            blog.setTags(tags);
+        }
+
+        return toResponse(blogRepository.save(blog));
+    }
+
+    public void delete(Long id, Long loginUserId) {
+        Blog blog = findById(id);
+        if (!blog.getUser().getId().equals(loginUserId)) {
+            throw new RuntimeException("无权限删除他人博客");
+        }
+        blogRepository.deleteById(id);
+    }
+
+    private Blog findById(Long id) {
+        return blogRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Blog not exists, id:" + id));
+    }
+
+    private BlogResponse toResponse(Blog blog) {
+        return new BlogResponse(
+                blog.getId(),
+                blog.getTitle(),
+                blog.getContent(),
+                blog.getUser().getId(),
+                blog.getUser().getUsername(),
+
+                blog.getCategory().getId(),
+                blog.getCategory().getName(),
+                blog.getTags().stream()
+                                .map(tag -> tag.getName())
+                                .collect(Collectors.toSet()),
+                blog.getViewCount(),
+                blog.getLikeCount(),
+                blog.getCreateAt(),
+                blog.getUpdatedAt()
+        );
+    }
+}
