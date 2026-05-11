@@ -19,12 +19,12 @@
 - [x] 增加 `scrollBehavior`，路由切换自动回顶部。
 
 ## 状态管理与会话
-- [ ] 创建 `src/stores/auth.ts`，管理 token、当前用户、角色、登录/退出、`/users/me` 拉取。
-- [ ] 在应用启动时自动恢复登录态并刷新用户信息（失败则清 token）。
-- [ ] 统一处理 401/403：弹出提示并跳转登录或返回上一页。
+- [x] 创建 `src/stores/auth.ts`，管理 token、当前用户、角色、登录/退出、`/users/me` 拉取。
+- [x] 在应用启动时自动恢复登录态并刷新用户信息（失败则清 token）。
+- [x] 统一处理 401/403：弹出提示并跳转登录或返回上一页。
 
 ## 公共组件（可复用）
-- [ ] 创建 `src/components/base/BaseButton.vue`（支持 loading/disabled/variant）。
+- [x] 创建 `src/components/base/BaseButton.vue`（支持 loading/disabled/variant）。
 - [ ] 创建 `src/components/base/BaseInput.vue` 与 `BaseTextarea.vue`（支持 label、error、clear）。
 - [ ] 创建 `src/components/base/BaseSelect.vue` 与 `BaseTag.vue`（多选标签展示）。
 - [ ] 创建 `src/components/base/BaseModal.vue`（用于删除确认、提示）。

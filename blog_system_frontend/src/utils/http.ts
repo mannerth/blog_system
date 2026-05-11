@@ -118,7 +118,15 @@ export const request = async <TResponse = unknown, TBody = unknown>(
 
     return data
   } catch (error) {
-    if (error instanceof ApiError) throw error
+    if (error instanceof ApiError) {
+      if (error.status === 401) {
+        window.dispatchEvent(new CustomEvent('auth:unauthorized', { detail: error }))
+      }
+      if (error.status === 403) {
+        window.dispatchEvent(new CustomEvent('auth:forbidden', { detail: error }))
+      }
+      throw error
+    }
     if (error instanceof DOMException && error.name === 'AbortError') {
       throw new ApiError('Request timeout', 408)
     }
