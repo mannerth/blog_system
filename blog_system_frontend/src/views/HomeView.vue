@@ -35,7 +35,7 @@
       </template>
     </EmptyState>
     <div v-else class="home__grid">
-      <BlogCard v-for="blog in blogs" :key="blog.blog_id" :blog="blog" />
+      <BlogCard v-for="blog in blogs" :key="blog.id ?? blog.title" :blog="blog" />
     </div>
 
     <BasePagination
@@ -76,14 +76,14 @@ const filters = reactive({
   category: '',
   tag: '',
   keyword: '',
-  sort: '-created_at',
+  sort: 'createAt,desc',
 })
 
 const sortOptions: SelectOption[] = [
-  { label: '最新发布', value: '-created_at' },
-  { label: '最早发布', value: 'created_at' },
-  { label: '最多浏览', value: '-view_count' },
-  { label: '最多点赞', value: '-like_count' },
+  { label: '最新发布', value: 'createAt,desc' },
+  { label: '最早发布', value: 'createAt,asc' },
+  { label: '最多浏览', value: 'viewCount,desc' },
+  { label: '最多点赞', value: 'likeCount,desc' },
 ]
 
 const categoryOptions = ref<SelectOption[]>([])
@@ -100,7 +100,18 @@ const syncFromQuery = () => {
   filters.category = typeof query.category_id === 'string' ? query.category_id : ''
   filters.tag = typeof query.tag === 'string' ? query.tag : ''
   filters.keyword = typeof query.keyword === 'string' ? query.keyword : ''
-  filters.sort = typeof query.sort === 'string' ? query.sort : '-created_at'
+  const rawSort = typeof query.sort === 'string' ? query.sort : ''
+  if (rawSort === '-created_at') {
+    filters.sort = 'createAt,desc'
+  } else if (rawSort === 'created_at') {
+    filters.sort = 'createAt,asc'
+  } else if (rawSort === '-view_count') {
+    filters.sort = 'viewCount,desc'
+  } else if (rawSort === '-like_count') {
+    filters.sort = 'likeCount,desc'
+  } else {
+    filters.sort = rawSort || 'createAt,desc'
+  }
 }
 
 const syncToQuery = () => {
@@ -122,15 +133,15 @@ const fetchBlogs = async () => {
   loading.value = true
   try {
     const data = await listBlogs({
-      page: page.value,
+      page: Math.max(0, page.value - 1),
       size: size.value,
       category_id: filters.category || undefined,
       tag: filters.tag || undefined,
       keyword: filters.keyword || undefined,
       sort: filters.sort || undefined,
     })
-    blogs.value = data.items ?? []
-    total.value = data.total
+    blogs.value = data.content ?? []
+    total.value = data.totalElements ?? 0
   } catch {
     blogs.value = []
     total.value = 0
@@ -158,7 +169,7 @@ const fetchFilters = async () => {
       { label: '全部标签', value: '' },
       ...tags.map((tag) => ({
         label: tag.name ?? '标签',
-        value: tag.name ?? String(tag.id ?? ''),
+        value: String(tag.id ?? ''),
       })),
     ]
   } catch {
@@ -180,7 +191,7 @@ const resetFilters = () => {
   filters.category = ''
   filters.tag = ''
   filters.keyword = ''
-  filters.sort = '-created_at'
+  filters.sort = 'createAt,desc'
   page.value = 1
 }
 
@@ -208,7 +219,7 @@ watch(
   () => route.query,
   () => {
     syncFromQuery()
-    const currentKey = JSON.stringify({
+  const currentKey = JSON.stringify({
       page: page.value,
       size: size.value,
       category_id: filters.category || undefined,

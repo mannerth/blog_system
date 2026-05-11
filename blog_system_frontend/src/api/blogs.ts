@@ -1,5 +1,5 @@
 import { http } from '@/utils/http'
-import type { PageResult } from './types'
+import type { PageResponse, PageResult } from './types'
 
 export interface Blog {
   id?: number
@@ -20,14 +20,14 @@ export interface BlogCreateRequest {
   title: string
   content: string
   category_id: number
-  tags?: string[]
+  tags?: Array<string | number>
 }
 
 export interface BlogUpdateRequest {
   title?: string
   content?: string
   category_id?: number
-  tags?: string[]
+  tags?: Array<string | number>
 }
 
 export interface BlogListParams {
@@ -45,7 +45,6 @@ export const listBlogs = (params?: BlogListParams) => {
     page: params?.page,
     size: params?.size,
     keyword: params?.keyword,
-    sort: params?.sort,
   }
   if (params?.category_id) {
     normalized.categoryId = Number(params.category_id)
@@ -53,20 +52,45 @@ export const listBlogs = (params?: BlogListParams) => {
   if (params?.tag) {
     normalized.tagId = Number(params.tag)
   }
-  return http.get<PageResult<Blog>>('/blogs', { params: normalized })
+  if (params?.sort) {
+    const [property, direction] = params.sort.split(',')
+    normalized.sort = property
+    if (direction) {
+      normalized.direction = direction.toUpperCase()
+    }
+  }
+  return http.get<PageResponse<Blog>>('/blogs', { params: normalized })
 }
 
 // TODO: 后端待实现
-export const createBlog = (payload: BlogCreateRequest) =>
-  http.post<Blog, BlogCreateRequest>('/blogs', payload)
+export const createBlog = (payload: BlogCreateRequest) => {
+  const normalized = {
+    title: payload.title,
+    content: payload.content,
+    categoryId: payload.category_id,
+    tagIds: payload.tags
+      ?.map((tag) => Number(tag))
+      .filter((value) => !Number.isNaN(value)),
+  }
+  return http.post<Blog, typeof normalized>('/blogs', normalized)
+}
 
 // TODO: 后端待实现
 export const getBlogDetail = (blogId: number) =>
   http.get<Blog>(`/blogs/${blogId}`)
 
 // TODO: 后端待实现
-export const updateBlog = (blogId: number, payload: BlogUpdateRequest) =>
-  http.put<Blog, BlogUpdateRequest>(`/blogs/${blogId}`, payload)
+export const updateBlog = (blogId: number, payload: BlogUpdateRequest) => {
+  const normalized = {
+    title: payload.title,
+    content: payload.content,
+    categoryId: payload.category_id,
+    tagIds: payload.tags
+      ?.map((tag) => Number(tag))
+      .filter((value) => !Number.isNaN(value)),
+  }
+  return http.put<Blog, typeof normalized>(`/blogs/${blogId}`, normalized)
+}
 
 // TODO: 后端待实现
 export const deleteBlog = (blogId: number) =>
@@ -74,15 +98,15 @@ export const deleteBlog = (blogId: number) =>
 
 // TODO: 后端待实现
 export const listMyBlogs = (params?: { page?: number; size?: number }) =>
-  http.get<PageResult<Blog>>('/users/me/blogs', { params })
+  http.get<PageResponse<Blog>>('/users/me/blogs', { params })
 
 // TODO: 后端待实现
 export const listUserBlogs = (userId: number, params?: { page?: number; size?: number }) =>
-  http.get<PageResult<Blog>>(`/users/${userId}/blogs`, { params })
+  http.get<PageResponse<Blog>>(`/users/${userId}/blogs`, { params })
 
 // TODO: 后端待实现
 export const listAdminBlogs = (params?: BlogListParams) =>
-  http.get<PageResult<Blog>>('/admin/blogs', { params: params as Record<string, string | number | boolean | null | undefined> })
+  http.get<PageResponse<Blog>>('/admin/blogs', { params: params as Record<string, string | number | boolean | null | undefined> })
 
 // TODO: 后端待实现
 export const updateAdminBlog = (blogId: number, payload: BlogUpdateRequest) =>
