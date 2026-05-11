@@ -3,10 +3,11 @@ package com.example.blog_system_backend.blog;
 import com.example.blog_system_backend.blog.dto.BlogCreateRequest;
 import com.example.blog_system_backend.blog.dto.BlogResponse;
 import com.example.blog_system_backend.blog.dto.BlogUpdateRequest;
-import com.example.blog_system_backend.category.dto.CategoryCreateRequest;
-import com.example.blog_system_backend.category.dto.CategoryResponse;
+import com.example.blog_system_backend.user.User;
+import com.example.blog_system_backend.user.UserService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
@@ -16,8 +17,12 @@ import java.util.Collection;
 public class BlogController {
 
     private final BlogService blogService;
+    private final UserService userService;
 
-    public BlogController(BlogService blogService) { this.blogService = blogService; }
+    public BlogController(BlogService blogService, UserService userService) {
+        this.blogService = blogService;
+        this.userService = userService;
+    }
 
     @GetMapping("/{id}")
     public BlogResponse getById(@PathVariable Long id) {
@@ -67,27 +72,35 @@ public class BlogController {
     @PostMapping
     public BlogResponse create(
             @RequestBody BlogCreateRequest request,
-            @RequestParam Long userId       //从URL获取用户ID
+            Authentication authentication
     ) {
-        System.out.println("=====================> 拿到的 userId: " + userId);
-        return blogService.create(request, userId);
+        String username = authentication.getName();
+
+        User currentUser = userService.findUserByUsername(username);
+        System.out.println("=====================> 拿到的 userId: " + currentUser.getId());
+        return blogService.create(request, currentUser.getId());
     }
 
     @PutMapping("/{id}")
     public BlogResponse update(
             @PathVariable Long id,
             @RequestBody BlogUpdateRequest request,
-            // 后续接入登录后换成从注解拿登录用户ID，现在开发可以先用@RequestParam临时测试
-            @RequestParam Long loginUserId
+            Authentication authentication
     ) {
-        return blogService.update(id, request, loginUserId);
+        String username = authentication.getName();
+
+        User currentUser = userService.findUserByUsername(username);
+        return blogService.update(id, request, currentUser.getId());
     }
 
     @DeleteMapping("/{id}")
     public void delete(
             @PathVariable Long id,
-            @RequestParam Long loginUserId
+            Authentication authentication
     ) {
-        blogService.delete(id, loginUserId);
+        String username = authentication.getName();
+
+        User currentUser = userService.findUserByUsername(username);
+        blogService.delete(id, currentUser.getId());
     }
 }

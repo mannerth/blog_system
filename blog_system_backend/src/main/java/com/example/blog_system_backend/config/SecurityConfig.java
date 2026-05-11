@@ -3,6 +3,7 @@ package com.example.blog_system_backend.config;
 import com.example.blog_system_backend.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -37,8 +38,21 @@ public class SecurityConfig {
                         .requestMatchers("/api/tags/**").permitAll()
                         .requestMatchers("/api/categories/**").permitAll()
                         .requestMatchers("/api/blogs/**").permitAll()
+                        // ==========================================
+                        // 【个人中心】登录就能访问（绝对不会被管理员拦截）
+                        // ==========================================
                         .requestMatchers("/api/users/me").authenticated()
-                        .requestMatchers("/api/users/**").hasRole("ADMIN")
+                        .requestMatchers("/api/users/me/**").authenticated()
+
+                        // ==========================================
+                        // 【管理员接口】只限制具体的增删改查，不拦截 /me
+                        // ==========================================
+                        .requestMatchers(HttpMethod.GET, "/api/users").hasRole("ADMIN")      // 用户列表
+                        .requestMatchers(HttpMethod.GET, "/api/users/{id}").hasRole("ADMIN")  // 查单个用户
+                        .requestMatchers(HttpMethod.POST, "/api/users").hasRole("ADMIN")     // 新建用户
+                        .requestMatchers(HttpMethod.PUT, "/api/users/{id}").hasRole("ADMIN") // 修改用户
+                        .requestMatchers(HttpMethod.DELETE, "/api/users/{id}").hasRole("ADMIN")// 删除用户
+
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )

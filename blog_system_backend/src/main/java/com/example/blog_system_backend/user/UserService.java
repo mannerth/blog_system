@@ -6,6 +6,10 @@ import com.example.blog_system_backend.user.dto.UserCreateRequest;
 import com.example.blog_system_backend.user.dto.UserProfileResponse;
 import com.example.blog_system_backend.user.dto.UserUpdateRequest;
 import java.util.List;
+
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -91,7 +95,7 @@ public class UserService {
                 .orElseThrow(() -> new UserNotFoundException(id));
     }
 
-    private User findUserByUsername(String username) {
+    public User findUserByUsername(String username) {
         String normalizedUsername = normalizeUsername(username);
         return userRepository.findByUsername(normalizedUsername)
                 .orElseThrow(() -> new UserNotFoundException(normalizedUsername));
