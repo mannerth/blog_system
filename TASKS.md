@@ -25,12 +25,12 @@
 
 ## 公共组件（可复用）
 - [x] 创建 `src/components/base/BaseButton.vue`（支持 loading/disabled/variant）。
-- [ ] 创建 `src/components/base/BaseInput.vue` 与 `BaseTextarea.vue`（支持 label、error、clear）。
-- [ ] 创建 `src/components/base/BaseSelect.vue` 与 `BaseTag.vue`（多选标签展示）。
-- [ ] 创建 `src/components/base/BaseModal.vue`（用于删除确认、提示）。
-- [ ] 创建 `src/components/base/BasePagination.vue`（支持总数/页码/尺寸）。
-- [ ] 创建 `src/components/base/EmptyState.vue` 与 `LoadingState.vue`（列表空态/加载态）。
-- [ ] 创建 `src/components/ToastProvider.vue`，用于全局提示（成功/失败/警告）。
+- [x] 创建 `src/components/base/BaseInput.vue` 与 `BaseTextarea.vue`（支持 label、error、clear）。
+- [x] 创建 `src/components/base/BaseSelect.vue` 与 `BaseTag.vue`（多选标签展示）。
+- [x] 创建 `src/components/base/BaseModal.vue`（用于删除确认、提示）。
+- [x] 创建 `src/components/base/BasePagination.vue`（支持总数/页码/尺寸）。
+- [x] 创建 `src/components/base/EmptyState.vue` 与 `LoadingState.vue`（列表空态/加载态）。
+- [x] 创建 `src/components/ToastProvider.vue`，用于全局提示（成功/失败/警告）。
 
 ## 认证与用户
 - [ ] 创建 `src/views/LoginView.vue`，实现登录表单校验、调用 `login`、写入 token、跳转来源页。
