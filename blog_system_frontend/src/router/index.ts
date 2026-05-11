@@ -3,6 +3,9 @@ import HomeView from '../views/HomeView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
+  scrollBehavior() {
+    return { top: 0 }
+  },
   routes: [
     {
       path: '/',
@@ -47,6 +50,7 @@ const router = createRouter({
       meta: {
         title: '发布博客',
         description: '开始撰写新的文章。',
+        requiresAuth: true,
       },
     },
     {
@@ -56,6 +60,7 @@ const router = createRouter({
       meta: {
         title: '编辑博客',
         description: '继续完善你的文章内容。',
+        requiresAuth: true,
       },
     },
     {
@@ -65,6 +70,7 @@ const router = createRouter({
       meta: {
         title: '我的博客',
         description: '管理你发布的内容。',
+        requiresAuth: true,
       },
     },
     {
@@ -74,6 +80,7 @@ const router = createRouter({
       meta: {
         title: '个人中心',
         description: '查看与更新个人信息。',
+        requiresAuth: true,
       },
     },
     {
@@ -83,6 +90,8 @@ const router = createRouter({
       meta: {
         title: '管理后台',
         description: '管理员可以在此查看全站数据。',
+        requiresAuth: true,
+        requiresAdmin: true,
       },
     },
     {
@@ -92,6 +101,8 @@ const router = createRouter({
       meta: {
         title: '博客管理',
         description: '筛选、编辑与管理博客。',
+        requiresAuth: true,
+        requiresAdmin: true,
       },
     },
     {
@@ -101,6 +112,8 @@ const router = createRouter({
       meta: {
         title: '分类管理',
         description: '维护站点分类。',
+        requiresAuth: true,
+        requiresAdmin: true,
       },
     },
     {
@@ -110,6 +123,8 @@ const router = createRouter({
       meta: {
         title: '标签管理',
         description: '管理全站标签。',
+        requiresAuth: true,
+        requiresAdmin: true,
       },
     },
     {
@@ -119,6 +134,8 @@ const router = createRouter({
       meta: {
         title: '用户管理',
         description: '查看与管理用户信息。',
+        requiresAuth: true,
+        requiresAdmin: true,
       },
     },
     {

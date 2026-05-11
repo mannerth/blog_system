@@ -15,8 +15,8 @@
 - [x] 创建 `src/layouts/AppLayout.vue`，包含顶部导航、搜索入口、用户区（登录/头像/退出）、页脚。
 - [x] 创建 `src/layouts/AdminLayout.vue`，包含侧边栏与管理导航。
 - [x] 配置 `src/router/index.ts` 的页面路由与懒加载：首页、详情、登录、注册、发布/编辑、我的博客、个人中心、管理后台、404。
-- [ ] 增加 `src/router/guards.ts`，实现登录校验、管理员角色校验与未登录回跳 `redirect`。
-- [ ] 增加 `scrollBehavior`，路由切换自动回顶部。
+- [x] 增加 `src/router/guards.ts`，实现登录校验、管理员角色校验与未登录回跳 `redirect`。
+- [x] 增加 `scrollBehavior`，路由切换自动回顶部。
 
 ## 状态管理与会话
 - [ ] 创建 `src/stores/auth.ts`，管理 token、当前用户、角色、登录/退出、`/users/me` 拉取。
