@@ -1,18 +1,19 @@
 import { http } from '@/utils/http'
-import type { ApiUser, Category, Tag, PageResult } from './types'
+import type { PageResult } from './types'
 
 export interface Blog {
-  blog_id?: number
+  id?: number
   title?: string
   content?: string
-  user_id?: number
-  author?: ApiUser
-  category?: Category
-  tags?: Tag[]
-  view_count?: number
-  like_count?: number
-  created_at?: string
-  updated_at?: string
+  userId?: number
+  username?: string
+  categoryId?: number
+  categoryName?: string
+  tagNames?: string[]
+  viewCount?: number
+  likeCount?: number
+  createAt?: string
+  updatedAt?: string
 }
 
 export interface BlogCreateRequest {
@@ -29,11 +30,31 @@ export interface BlogUpdateRequest {
   tags?: string[]
 }
 
-export type BlogListParams = Record<string, string | number | boolean | null | undefined>
+export interface BlogListParams {
+  page?: number
+  size?: number
+  category_id?: string | number
+  tag?: string | number
+  keyword?: string
+  sort?: string
+}
 
 // TODO: 后端待实现
-export const listBlogs = (params?: BlogListParams) =>
-  http.get<PageResult<Blog>>('/blogs', { params })
+export const listBlogs = (params?: BlogListParams) => {
+  const normalized: Record<string, string | number | boolean | null | undefined> = {
+    page: params?.page,
+    size: params?.size,
+    keyword: params?.keyword,
+    sort: params?.sort,
+  }
+  if (params?.category_id) {
+    normalized.categoryId = Number(params.category_id)
+  }
+  if (params?.tag) {
+    normalized.tagId = Number(params.tag)
+  }
+  return http.get<PageResult<Blog>>('/blogs', { params: normalized })
+}
 
 // TODO: 后端待实现
 export const createBlog = (payload: BlogCreateRequest) =>
@@ -61,7 +82,7 @@ export const listUserBlogs = (userId: number, params?: { page?: number; size?: n
 
 // TODO: 后端待实现
 export const listAdminBlogs = (params?: BlogListParams) =>
-  http.get<PageResult<Blog>>('/admin/blogs', { params })
+  http.get<PageResult<Blog>>('/admin/blogs', { params: params as Record<string, string | number | boolean | null | undefined> })
 
 // TODO: 后端待实现
 export const updateAdminBlog = (blogId: number, payload: BlogUpdateRequest) =>

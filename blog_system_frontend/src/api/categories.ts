@@ -1,5 +1,10 @@
 import { http } from '@/utils/http'
-import type { Category } from './types'
+export interface CategoryResponse {
+  id: number
+  name: string
+  description?: string
+  createAt: string
+}
 
 export interface CategoryCreateRequest {
   name: string
@@ -11,16 +16,15 @@ export interface CategoryUpdateRequest {
   description?: string
 }
 
-// TODO: 后端待实现
-export const listCategories = () => http.get<Category[]>('/categories')
+export const listCategories = () => http.get<CategoryResponse[]>('/categories')
 
 // TODO: 后端待实现
 export const createCategory = (payload: CategoryCreateRequest) =>
-  http.post<Category, CategoryCreateRequest>('/categories', payload)
+  http.post<CategoryResponse, CategoryCreateRequest>('/categories', payload)
 
 // TODO: 后端待实现
 export const updateCategory = (categoryId: number, payload: CategoryUpdateRequest) =>
-  http.put<Category, CategoryUpdateRequest>(`/categories/${categoryId}`, payload)
+  http.put<CategoryResponse, CategoryUpdateRequest>(`/categories/${categoryId}`, payload)
 
 // TODO: 后端待实现
 export const deleteCategory = (categoryId: number) =>

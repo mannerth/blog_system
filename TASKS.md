@@ -33,16 +33,16 @@
 - [x] 创建 `src/components/ToastProvider.vue`，用于全局提示（成功/失败/警告）。
 
 ## 认证与用户
-- [ ] 创建 `src/views/LoginView.vue`，实现登录表单校验、调用 `login`、写入 token、跳转来源页。
-- [ ] 创建 `src/views/RegisterView.vue`，实现注册表单校验、调用 `register`、自动登录。
-- [ ] 创建 `src/views/ProfileView.vue`，展示当前用户信息（从 `getMe` 读取）。
-- [ ] （后端待实现）补齐“更新个人资料”能力并接入 `/users/me` 更新接口。
+- [x] 创建 `src/views/LoginView.vue`，实现登录表单校验、调用 `login`、写入 token、跳转来源页。
+- [x] 创建 `src/views/RegisterView.vue`，实现注册表单校验、调用 `register`、自动登录。
+- [x] 创建 `src/views/ProfileView.vue`，展示当前用户信息（从 `getMe` 读取）。
+- [x] （后端待实现）补齐“更新个人资料”能力并接入 `/users/me` 更新接口。
 
 ## 博客浏览与搜索（公开）
-- [ ] 改造 `src/views/HomeView.vue` 为博客列表页，使用 `listBlogs` 渲染卡片列表。
-- [ ] 创建 `src/components/BlogCard.vue`，展示标题、作者、分类、标签、时间、浏览/点赞。
-- [ ] 增加分类与标签筛选（调用 `listCategories`、`listTags`），条件同步到 URL query。
-- [ ] 增加关键词搜索与排序（`keyword`、`sort`），与分页参数一并驱动请求。
+- [x] 改造 `src/views/HomeView.vue` 为博客列表页，使用 `listBlogs` 渲染卡片列表。
+- [x] 创建 `src/components/BlogCard.vue`，展示标题、作者、分类、标签、时间、浏览/点赞。
+- [x] 增加分类与标签筛选（调用 `listCategories`、`listTags`），条件同步到 URL query。
+- [x] 增加关键词搜索与排序（`keyword`、`sort`），与分页参数一并驱动请求。
 
 ## 博客详情与互动
 - [ ] 创建 `src/views/BlogDetailView.vue`，加载 `getBlogDetail` 并展示元信息。

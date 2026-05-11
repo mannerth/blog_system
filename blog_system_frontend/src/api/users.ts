@@ -19,6 +19,11 @@ export interface UserUpdateRequest {
   role?: 'USER' | 'ADMIN'
 }
 
+export interface UpdateMeRequest {
+  username: string
+  password?: string
+}
+
 export const getMe = () => http.get<UserProfile>('/users/me')
 
 export const listUsers = () => http.get<UserProfile[]>('/users')
@@ -31,3 +36,7 @@ export const updateUser = (id: number, payload: UserUpdateRequest) =>
   http.put<UserProfile, UserUpdateRequest>(`/users/${id}`, payload)
 
 export const deleteUser = (id: number) => http.delete<void>(`/users/${id}`)
+
+// TODO: 后端待实现
+export const updateMe = (payload: UpdateMeRequest) =>
+  http.put<UserProfile, UpdateMeRequest>('/users/me', payload)

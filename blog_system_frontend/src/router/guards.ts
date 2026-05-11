@@ -1,6 +1,7 @@
 import type { Router } from 'vue-router'
 import { getToken, clearToken } from '@/utils/auth'
 import { getMe } from '@/api'
+import { useAuthStore } from '@/stores/auth'
 
 export const setupRouterGuards = (router: Router) => {
   router.beforeEach(async (to) => {
@@ -20,7 +21,8 @@ export const setupRouterGuards = (router: Router) => {
     if (!requiresAdmin) return true
 
     try {
-      const me = await getMe()
+      const authStore = useAuthStore()
+      const me = await authStore.fetchMe()
       if (me.role === 'ADMIN') return true
     } catch {
       clearToken()

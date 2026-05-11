@@ -8,7 +8,7 @@
         :disabled="disabled"
         @change="onChange"
       >
-        <option v-if="placeholder" value="" disabled>{{ placeholder }}</option>
+        <option v-if="placeholder && !hasEmptyOption" value="" disabled>{{ placeholder }}</option>
         <option v-for="option in options" :key="String(option.value)" :value="option.value" :disabled="option.disabled">
           {{ option.label }}
         </option>
@@ -51,6 +51,7 @@ const emit = defineEmits<{
 }>()
 
 const normalizedValue = computed(() => (props.modelValue === null ? '' : String(props.modelValue)))
+const hasEmptyOption = computed(() => props.options.some((option) => String(option.value) === ''))
 
 const onChange = (event: Event) => {
   const target = event.target as HTMLSelectElement

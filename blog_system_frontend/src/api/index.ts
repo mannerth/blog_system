@@ -16,5 +16,6 @@ export type {
   TagUpdateRequest,
 } from './tags'
 export * from './users'
+export type { UpdateMeRequest } from './users'
 export * from './admin'
 export * from './types'

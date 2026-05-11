@@ -19,7 +19,7 @@ const router = createRouter({
     {
       path: '/login',
       name: 'login',
-      component: () => import('../views/PlaceholderView.vue'),
+      component: () => import('../views/LoginView.vue'),
       meta: {
         title: '登录',
         description: '请登录以继续访问个人功能。',
@@ -28,7 +28,7 @@ const router = createRouter({
     {
       path: '/register',
       name: 'register',
-      component: () => import('../views/PlaceholderView.vue'),
+      component: () => import('../views/RegisterView.vue'),
       meta: {
         title: '注册',
         description: '创建账号，开始记录你的灵感。',
@@ -76,7 +76,7 @@ const router = createRouter({
     {
       path: '/profile',
       name: 'profile',
-      component: () => import('../views/PlaceholderView.vue'),
+      component: () => import('../views/ProfileView.vue'),
       meta: {
         title: '个人中心',
         description: '查看与更新个人信息。',

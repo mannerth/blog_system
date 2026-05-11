@@ -19,13 +19,13 @@ export interface AuthResponse {
 }
 
 export const login = async (payload: LoginRequest) => {
-  const data = await http.post<AuthResponse, LoginRequest>('/api/auth/login', payload, { withAuth: false })
+  const data = await http.post<AuthResponse, LoginRequest>('/auth/login', payload, { withAuth: false })
   if (data?.token) setToken(data.token)
   return data
 }
 
 export const register = async (payload: RegisterRequest) => {
-  const data = await http.post<AuthResponse, RegisterRequest>('/api/auth/register', payload, { withAuth: false })
+  const data = await http.post<AuthResponse, RegisterRequest>('/auth/register', payload, { withAuth: false })
   if (data?.token) setToken(data.token)
   return data
 }
