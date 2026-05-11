@@ -1,5 +1,5 @@
 import type { Router } from 'vue-router'
-import { clearToken } from './auth'
+import { useAuthStore } from '@/stores/auth'
 
 interface AuthEventOptions {
   onUnauthorized?: () => void
@@ -8,7 +8,8 @@ interface AuthEventOptions {
 
 export const setupAuthEvents = (router: Router, options: AuthEventOptions = {}) => {
   const handleUnauthorized = () => {
-    clearToken()
+    const authStore = useAuthStore()
+    authStore.logout()
     if (options.onUnauthorized) {
       options.onUnauthorized()
     }
