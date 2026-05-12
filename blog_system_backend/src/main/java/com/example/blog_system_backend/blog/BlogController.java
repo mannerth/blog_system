@@ -3,6 +3,9 @@ package com.example.blog_system_backend.blog;
 import com.example.blog_system_backend.blog.dto.BlogCreateRequest;
 import com.example.blog_system_backend.blog.dto.BlogResponse;
 import com.example.blog_system_backend.blog.dto.BlogUpdateRequest;
+import com.example.blog_system_backend.comment.CommentService;
+import com.example.blog_system_backend.comment.dto.CommentRequest;
+import com.example.blog_system_backend.comment.dto.CommentResponse;
 import com.example.blog_system_backend.user.User;
 import com.example.blog_system_backend.user.UserService;
 import org.springframework.data.domain.Page;
@@ -18,10 +21,12 @@ public class BlogController {
 
     private final BlogService blogService;
     private final UserService userService;
+    private final CommentService commentService;
 
-    public BlogController(BlogService blogService, UserService userService) {
+    public BlogController(BlogService blogService, UserService userService, CommentService commentService) {
         this.blogService = blogService;
         this.userService = userService;
+        this.commentService = commentService;
     }
 
     @GetMapping("/{id}")
@@ -61,14 +66,6 @@ public class BlogController {
         return blogService.getAll(pageable);
     }
 
-    @GetMapping("/users/{userId}/blogs")
-    public Page<BlogResponse> getByUserId(
-            @PathVariable Long userId,
-            Pageable pageable
-    ) {
-        return blogService.getByUserId(userId, pageable);
-    }
-
     @PostMapping
     public BlogResponse create(
             @RequestBody BlogCreateRequest request,
@@ -102,5 +99,28 @@ public class BlogController {
 
         User currentUser = userService.findUserByUsername(username);
         blogService.delete(id, currentUser.getId());
+    }
+
+    // 获取某博客下的所有评论
+    @GetMapping("/{blogId}/comments")
+    public Page<CommentResponse> getCommentsByBlogId(
+            @PathVariable Long blogId,
+            Pageable pageable
+    ) {
+        return commentService.getByBlogId(blogId, pageable);
+    }
+
+    // 发表顶级评论
+    @PostMapping("/{blogId}/comments")
+    public CommentResponse create(
+            @PathVariable Long blogId,
+            @RequestBody CommentRequest request,
+            Authentication authentication
+    ) {
+        String username = authentication.getName();
+        User currentUser = userService.findUserByUsername(username);
+
+        System.out.println("=====================> 评论用户 ID: " + currentUser.getId());
+        return commentService.create(blogId, currentUser.getId(), request);
     }
 }

@@ -38,6 +38,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/tags/**").permitAll()
                         .requestMatchers("/api/categories/**").permitAll()
                         .requestMatchers("/api/blogs/**").permitAll()
+                        .requestMatchers("/api/comments/**").permitAll()
                         // ==========================================
                         // 【个人中心】登录就能访问（绝对不会被管理员拦截）
                         // ==========================================
