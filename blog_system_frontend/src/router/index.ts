@@ -37,7 +37,7 @@ const router = createRouter({
     {
       path: '/blogs/:id',
       name: 'blog-detail',
-      component: () => import('../views/PlaceholderView.vue'),
+      component: () => import('../views/BlogDetailView.vue'),
       meta: {
         title: '博客详情',
         description: '内容详情将在这里展示。',
@@ -46,7 +46,7 @@ const router = createRouter({
     {
       path: '/editor',
       name: 'blog-create',
-      component: () => import('../views/PlaceholderView.vue'),
+      component: () => import('../views/BlogEditorView.vue'),
       meta: {
         title: '发布博客',
         description: '开始撰写新的文章。',
@@ -56,7 +56,7 @@ const router = createRouter({
     {
       path: '/editor/:id',
       name: 'blog-edit',
-      component: () => import('../views/PlaceholderView.vue'),
+      component: () => import('../views/BlogEditorView.vue'),
       meta: {
         title: '编辑博客',
         description: '继续完善你的文章内容。',
@@ -66,7 +66,7 @@ const router = createRouter({
     {
       path: '/my-blogs',
       name: 'my-blogs',
-      component: () => import('../views/PlaceholderView.vue'),
+      component: () => import('../views/MyBlogsView.vue'),
       meta: {
         title: '我的博客',
         description: '管理你发布的内容。',

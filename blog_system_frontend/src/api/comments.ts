@@ -1,15 +1,16 @@
 import { http } from '@/utils/http'
-import type { ApiUser, PageResult } from './types'
+import type { ApiUser, PageResponse } from './types'
 
 export interface Comment {
-  comment_id?: number
-  blog_id?: number
+  commentId?: number
+  blogId?: number
   user?: ApiUser
-  parent_comment_id?: number | null
+  parentCommentId?: number | null
   content?: string
-  like_count?: number
+  likeCount?: number
   replies?: Comment[]
-  created_at?: string
+  createdAt?: string
+  __liked?: boolean
 }
 
 export interface CommentRequest {
@@ -19,8 +20,25 @@ export interface CommentRequest {
 export type CommentListParams = Record<string, string | number | boolean | null | undefined>
 
 // TODO: 后端待实现
+const normalizePageParams = (params?: CommentListParams) => {
+  const normalized: Record<string, string | number | boolean | null | undefined> = {}
+  if (params?.page !== undefined) {
+    const pageValue = Number(params.page)
+    if (Number.isFinite(pageValue)) {
+      normalized.page = Math.max(0, pageValue)
+    }
+  }
+  if (params?.size !== undefined) {
+    const sizeValue = Number(params.size)
+    if (Number.isFinite(sizeValue)) {
+      normalized.size = Math.max(1, sizeValue)
+    }
+  }
+  return normalized
+}
+
 export const listBlogComments = (blogId: number, params?: CommentListParams) =>
-  http.get<PageResult<Comment>>(`/blogs/${blogId}/comments`, { params })
+  http.get<PageResponse<Comment>>(`/blogs/${blogId}/comments`, { params: normalizePageParams(params) })
 
 // TODO: 后端待实现
 export const createBlogComment = (blogId: number, payload: CommentRequest) =>

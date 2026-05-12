@@ -133,7 +133,7 @@ const fetchBlogs = async () => {
   loading.value = true
   try {
     const data = await listBlogs({
-      page: Math.max(0, page.value - 1),
+      page: page.value,
       size: size.value,
       category_id: filters.category || undefined,
       tag: filters.tag || undefined,

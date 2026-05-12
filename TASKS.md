@@ -45,26 +45,26 @@
 - [x] 增加关键词搜索与排序（`keyword`、`sort`），与分页参数一并驱动请求。
 
 ## 博客详情与互动
-- [ ] 创建 `src/views/BlogDetailView.vue`，加载 `getBlogDetail` 并展示元信息。
-- [ ] 使用 `MyQuillEditor` 的只读模式渲染 Delta 内容。
-- [ ] 增加点赞按钮（`likeBlog`/`unlikeBlog`），支持乐观更新与错误回滚。
+- [x] 创建 `src/views/BlogDetailView.vue`，加载 `getBlogDetail` 并展示元信息。
+- [x] 使用 `MyQuillEditor` 的只读模式渲染 Delta 内容。
+- [x] 增加点赞按钮（`likeBlog`/`unlikeBlog`），支持乐观更新与错误回滚。
 
 ## 博客发布与编辑
-- [ ] 创建 `src/views/BlogEditorView.vue`，包含标题、分类选择、标签输入、内容编辑器。
-- [ ] 新建博客：调用 `createBlog`，成功后跳转详情。
-- [ ] 编辑博客：根据路由参数加载详情并回填，调用 `updateBlog`。
-- [ ] 增加草稿自动保存与恢复（localStorage），避免编辑内容丢失。
+- [x] 创建 `src/views/BlogEditorView.vue`，包含标题、分类选择、标签输入、内容编辑器。
+- [x] 新建博客：调用 `createBlog`，成功后跳转详情。
+- [x] 编辑博客：根据路由参数加载详情并回填，调用 `updateBlog`。
+- [x] 增加草稿自动保存与恢复（localStorage），避免编辑内容丢失。
 
 ## 我的博客管理
-- [ ] 创建 `src/views/MyBlogsView.vue`，调用 `listMyBlogs` 显示当前用户博客。
-- [ ] 支持编辑与删除（`updateBlog`/`deleteBlog`），删除需二次确认。
+- [x] 创建 `src/views/MyBlogsView.vue`，调用 `listMyBlogs` 显示当前用户博客。
+- [x] 支持编辑与删除（`updateBlog`/`deleteBlog`），删除需二次确认。
 
 ## 评论系统
-- [ ] 创建 `src/components/CommentList.vue` 与 `CommentItem.vue`，支持楼中楼展示。
-- [ ] 在详情页调用 `listBlogComments` 并分页加载。
-- [ ] 实现发表评论与回复（`createBlogComment`、`replyComment`），未登录给出提示。
-- [ ] 实现删除评论（`deleteComment`），仅对作者/博主/管理员显示删除入口。
-- [ ] 实现评论点赞（`likeComment`/`unlikeComment`）并同步计数。
+- [x] 创建 `src/components/CommentList.vue` 与 `CommentItem.vue`，支持楼中楼展示。
+- [x] 在详情页调用 `listBlogComments` 并分页加载。
+- [x] 实现发表评论与回复（`createBlogComment`、`replyComment`），未登录给出提示。
+- [x] 实现删除评论（`deleteComment`），仅对作者/博主/管理员显示删除入口。
+- [x] 实现评论点赞（`likeComment`/`unlikeComment`）并同步计数。
 
 ## 分类与标签
 - [ ] 创建 `src/views/AdminCategoriesView.vue`（列表/新增/编辑/删除分类）。

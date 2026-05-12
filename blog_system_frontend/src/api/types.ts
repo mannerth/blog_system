@@ -1,27 +1,27 @@
-export type ApiUserRole = 'user' | 'admin'
+export type ApiUserRole = 'USER' | 'ADMIN'
 
 export interface ApiUser {
-  user_id?: number
+  id?: number
   username?: string
   nickname?: string
-  avatar_url?: string
+  avatarUrl?: string
   bio?: string
   role?: ApiUserRole
-  created_at?: string
-  updated_at?: string
+  createdAt?: string
+  updatedAt?: string
 }
 
 export interface Category {
-  category_id?: number
+  id?: number
   name?: string
   description?: string
-  created_at?: string
+  createAt?: string
 }
 
 export interface Tag {
-  tag_id?: number
+  id?: number
   name?: string
-  created_at?: string
+  createAt?: string
 }
 
 export interface PageResult<T> {

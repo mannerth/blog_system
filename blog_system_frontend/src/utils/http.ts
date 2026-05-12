@@ -100,6 +100,8 @@ export const request = async <TResponse = unknown, TBody = unknown>(
     }
   }
 
+  console.log(`[HTTP] ${method} ${url}`, { body, headers: finalHeaders })
+
   const { signal: timeoutSignal, cleanup } = createTimeoutSignal(DEFAULT_TIMEOUT, signal)
 
   try {
