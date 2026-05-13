@@ -123,4 +123,30 @@ public class BlogController {
         System.out.println("=====================> 评论用户 ID: " + currentUser.getId());
         return commentService.create(blogId, currentUser.getId(), request);
     }
+
+    // 点赞 / 取消点赞
+    @PostMapping("/{blogId}/like")
+    public boolean toggleLike(
+            @PathVariable Long blogId,
+            Authentication authentication
+    ) {
+        String username = authentication.getName();
+        User currentUser = userService.findUserByUsername(username);
+        Long userId = currentUser.getId();
+
+        return blogService.toggleLike(blogId, userId);
+    }
+
+    // 查询当前用户是否点赞
+    @GetMapping("/{blogId}/isLiked")
+    public boolean isLiked(
+            @PathVariable Long blogId,
+            Authentication authentication
+    ) {
+        String username = authentication.getName();
+        User currentUser = userService.findUserByUsername(username);
+        Long userId = currentUser.getId();
+
+        return blogService.isLiked(blogId, userId);
+    }
 }

@@ -14,9 +14,11 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -27,12 +29,14 @@ public class BlogService {
     private final CategoryRepository categoryRepository;
     private final TagRepository tagRepository;
     private final UserRepository userRepository;
+    private final BlogLikeRepository blogLikeRepository;
 
-    public BlogService(BlogRepository blogRepository, CategoryRepository categoryRepository, TagRepository tagRepository, UserRepository userRepository) {
+    public BlogService(BlogRepository blogRepository, CategoryRepository categoryRepository, TagRepository tagRepository, UserRepository userRepository, BlogLikeRepository blogLikeRepository) {
         this.blogRepository = blogRepository;
         this.categoryRepository = categoryRepository;
         this.tagRepository = tagRepository;
         this.userRepository = userRepository;
+        this.blogLikeRepository = blogLikeRepository;
     }
 
     public BlogResponse getById(Long id) {
@@ -122,6 +126,38 @@ public class BlogService {
             throw new RuntimeException("无权限删除他人博客");
         }
         blogRepository.deleteById(id);
+    }
+
+    // ===================== 点赞 / 取消点赞 =====================
+    @Transactional
+    public boolean toggleLike(Long blogId, Long userId) {
+        Blog blog = findById(blogId);
+
+        Optional<BlogLike> existingLike = blogLikeRepository.findByUserIdAndBlogId(userId, blogId);
+
+        if (existingLike.isPresent()) {
+            // 已点赞 → 取消点赞
+            blogLikeRepository.delete(existingLike.get());
+            blog.setLikeCount(blog.getLikeCount() - 1);
+            blogRepository.save(blog);
+            return false;
+        } else {
+            // 未点赞 → 点赞
+            BlogLike blogLike = new BlogLike();
+            blogLike.setUserId(userId);
+            blogLike.setBlogId(blogId);
+            blogLikeRepository.save(blogLike);
+
+            blog.setLikeCount(blog.getLikeCount() + 1);
+            blogRepository.save(blog);
+            return true;
+        }
+    }
+
+    // ===================== 查询当前用户是否点赞 =====================
+    public boolean isLiked(Long blogId, Long userId) {
+        findById(blogId);
+        return blogLikeRepository.findByUserIdAndBlogId(userId, blogId).isPresent();
     }
 
     private Blog findById(Long id) {

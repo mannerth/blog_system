@@ -46,4 +46,30 @@ public class CommentController {
 
         commentService.delete(commentId, currentUser.getId(), isAdmin);
     }
+
+    // 点赞 / 取消点赞
+    @PostMapping("/{commentId}/like")
+    public boolean toggleLike(
+            @PathVariable Long commentId,
+            Authentication authentication
+    ) {
+        String username = authentication.getName();
+        User currentUser = userService.findUserByUsername(username);
+        Long userId = currentUser.getId();
+
+        return commentService.toggleLike(commentId, userId);
+    }
+
+    // 查询当前用户是否点赞
+    @GetMapping("/{commentId}/isLiked")
+    public boolean isLiked(
+            @PathVariable Long commentId,
+            Authentication authentication
+    ) {
+        String username = authentication.getName();
+        User currentUser = userService.findUserByUsername(username);
+        Long userId = currentUser.getId();
+
+        return commentService.isLiked(commentId, userId);
+    }
 }

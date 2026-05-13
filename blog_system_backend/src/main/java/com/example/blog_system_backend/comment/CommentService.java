@@ -1,6 +1,7 @@
 package com.example.blog_system_backend.comment;
 
 import com.example.blog_system_backend.blog.Blog;
+import com.example.blog_system_backend.comment.CommentLike;
 import com.example.blog_system_backend.blog.BlogRepository;
 import com.example.blog_system_backend.comment.dto.CommentRequest;
 import com.example.blog_system_backend.comment.dto.CommentResponse;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CommentService {
@@ -23,11 +25,13 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final BlogRepository blogRepository;
     private final UserRepository userRepository;
+    private final CommentLikeRepository commentLikeRepository;
 
-    public CommentService(CommentRepository commentRepository, BlogRepository blogRepository, UserRepository userRepository) {
+    public CommentService(CommentRepository commentRepository, BlogRepository blogRepository, UserRepository userRepository, CommentLikeRepository commentLikeRepository) {
         this.commentRepository = commentRepository;
         this.blogRepository = blogRepository;
         this.userRepository = userRepository;
+        this.commentLikeRepository = commentLikeRepository;
     }
 
     public Page<CommentResponse> getByBlogId(Long blogId, Pageable pageable) {
@@ -56,7 +60,7 @@ public class CommentService {
     @Transactional
     public CommentResponse replyComment(Long parentCommentId, Long userId, CommentRequest request) {
         // 找到要回复的父评论
-        Comment parentComment = findCommentById(parentCommentId);
+        Comment parentComment = findById(parentCommentId);
 
         // 强制只能两级：父评论不能已经是子评论
         if (parentComment.getParentComment() != null) {
@@ -79,7 +83,7 @@ public class CommentService {
     // 删除评论（自己/管理员可删）
     @Transactional
     public void delete(Long commentId, Long currentUserId, boolean isAdmin) {
-        Comment comment = findCommentById(commentId);
+        Comment comment = findById(commentId);
 
         boolean isOwner = comment.getUser().getId().equals(currentUserId);
         if (!isOwner && !isAdmin) {
@@ -90,7 +94,7 @@ public class CommentService {
     }
 
 
-    private Comment findCommentById(Long id) {
+    private Comment findById(Long id) {
         return commentRepository.findById(id)
                 .orElseThrow(() -> new CommentNotFoundException(id));
     }
@@ -108,6 +112,38 @@ public class CommentService {
     // 简单结构（给子回复用，不再嵌套）
     private CommentResponse toSimpleResponse(Comment comment) {
         return buildResponse(comment, List.of());
+    }
+
+    // 点赞 / 取消点赞
+    @Transactional
+    public boolean toggleLike(Long commentId, Long userId) {
+        Comment comment = findById(commentId);
+
+        Optional<CommentLike> existingLike = commentLikeRepository.findByUserIdAndCommentId(userId, commentId);
+
+        if (existingLike.isPresent()) {
+            // 已点赞 → 取消点赞
+            commentLikeRepository.delete(existingLike.get());
+            comment.setLikeCount(comment.getLikeCount() - 1);
+            commentRepository.save(comment);
+            return false;
+        } else {
+            // 未点赞 → 点赞
+            CommentLike commentLike = new CommentLike();
+            commentLike.setUserId(userId);
+            commentLike.setCommentId(commentId);
+            commentLikeRepository.save(commentLike);
+
+            comment.setLikeCount(comment.getLikeCount() + 1);
+            commentRepository.save(comment);
+            return true;
+        }
+    }
+
+    // 查询当前用户是否点赞
+    public boolean isLiked(Long commentId, Long userId) {
+        findById(commentId);
+        return commentLikeRepository.findByUserIdAndCommentId(userId, commentId).isPresent();
     }
 
     // 统一构建 DTO
