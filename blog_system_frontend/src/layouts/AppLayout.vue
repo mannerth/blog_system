@@ -9,12 +9,29 @@
 
         <div class="search">
           <span class="search__label">搜索</span>
-          <input class="search__input" type="search" placeholder="试试搜索标题或标签" />
+          <input
+            v-model="searchKeyword"
+            class="search__input"
+            type="search"
+            placeholder="试试搜索标题或标签"
+            @keyup.enter="applySearch"
+          />
         </div>
 
         <div class="user-area">
-          <RouterLink class="ghost-button" to="/login">登录</RouterLink>
-          <RouterLink class="solid-button" to="/register">注册</RouterLink>
+          <template v-if="isAuthenticated">
+            <RouterLink class="ghost-button" to="/my-blogs">我的博客</RouterLink>
+            <RouterLink class="solid-button" to="/editor">发布文章</RouterLink>
+            <div class="user-chip">
+              <span class="user-chip__avatar">{{ userInitial }}</span>
+              <span class="user-chip__name">{{ userName }}</span>
+              <button class="user-chip__logout" type="button" @click="handleLogout">退出</button>
+            </div>
+          </template>
+          <template v-else>
+            <RouterLink class="ghost-button" to="/login">登录</RouterLink>
+            <RouterLink class="solid-button" to="/register">注册</RouterLink>
+          </template>
         </div>
       </div>
     </header>
@@ -41,7 +58,46 @@
 </template>
 
 <script setup lang="ts">
-import { RouterLink } from 'vue-router'
+import { computed, ref, watch } from 'vue'
+import { RouterLink, useRouter, useRoute } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
+
+const router = useRouter()
+const route = useRoute()
+const authStore = useAuthStore()
+const searchKeyword = ref('')
+
+const isAuthenticated = computed(() => authStore.isAuthenticated)
+const userName = computed(() => authStore.user?.username ?? '已登录')
+const userInitial = computed(() => userName.value.slice(0, 1))
+
+const handleLogout = () => {
+  authStore.logout()
+  window.dispatchEvent(
+    new CustomEvent('toast', {
+      detail: { title: '已退出登录', message: '期待再次见到你。', type: 'warning' },
+    }),
+  )
+  router.replace('/')
+}
+
+const applySearch = () => {
+  const keyword = searchKeyword.value.trim()
+  router.replace({
+    path: '/',
+    query: {
+      keyword: keyword || undefined,
+    },
+  })
+}
+
+watch(
+  () => route.query.keyword,
+  (value) => {
+    searchKeyword.value = typeof value === 'string' ? value : ''
+  },
+  { immediate: true },
+)
 </script>
 
 <style scoped>
@@ -118,6 +174,41 @@ import { RouterLink } from 'vue-router'
   display: flex;
   align-items: center;
   gap: 12px;
+}
+
+.user-chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+}
+
+.user-chip__avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--color-primary-soft);
+  color: var(--color-primary-strong);
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+}
+
+.user-chip__name {
+  font-size: 14px;
+  color: var(--color-heading);
+  font-weight: 600;
+}
+
+.user-chip__logout {
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  font-size: 12px;
 }
 
 .ghost-button,

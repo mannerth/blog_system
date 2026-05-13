@@ -26,12 +26,22 @@
           :options="categoryOptions"
           :error="errors.category"
         />
-        <BaseSelect
-          v-model="form.tags"
-          label="标签"
-          placeholder="选择标签"
-          :options="tagOptions"
-        />
+        <div class="editor__tags">
+          <span class="editor__label">标签</span>
+          <div class="editor__tag-list">
+            <button
+              v-for="tag in selectableTags"
+              :key="tag.value"
+              type="button"
+              class="editor__tag"
+              :class="{ 'is-active': isTagSelected(tag.value) }"
+              @click="toggleTag(tag.value)"
+            >
+              {{ tag.label }}
+            </button>
+          </div>
+          <p class="editor__hint">可多选，最多选择多个标签。</p>
+        </div>
       </div>
       <MyQuillEditor v-model:content="form.content" />
     </form>
@@ -58,7 +68,7 @@ const saving = ref(false)
 const form = reactive({
   title: '',
   category: '',
-  tags: '',
+  tags: [] as string[],
   content: new Delta(),
 })
 
@@ -69,6 +79,11 @@ const errors = reactive({
 
 const categoryOptions = ref<SelectOption[]>([])
 const tagOptions = ref<SelectOption[]>([])
+const detailTagNames = ref<string[]>([])
+
+const selectableTags = computed(() =>
+  tagOptions.value.filter((tag) => tag.value !== '')
+)
 
 const draftKey = computed(() => `blog-editor-draft-${route.params.id || 'new'}`)
 const hasDraft = ref(false)
@@ -91,6 +106,7 @@ const fetchFilters = async () => {
         value: String(tag.id ?? ''),
       })),
     ]
+    applyDetailTags()
   } catch {
     categoryOptions.value = [{ label: '请选择分类', value: '' }]
     tagOptions.value = [{ label: '请选择标签', value: '' }]
@@ -110,7 +126,7 @@ const handleSubmit = async () => {
     title: form.title,
     content: JSON.stringify(form.content),
     category_id: Number(form.category),
-    tags: form.tags ? [form.tags] : [],
+    tags: form.tags,
   }
   try {
     if (isEdit.value) {
@@ -149,7 +165,8 @@ const loadDetail = async () => {
     const detail = await getBlogDetail(Number(route.params.id))
     form.title = detail.title ?? ''
     form.category = String(detail.categoryId ?? '')
-    form.tags = detail.tagNames?.[0] ?? ''
+    detailTagNames.value = detail.tagNames ?? []
+    applyDetailTags()
     if (detail.content) {
       try {
         form.content = new Delta(JSON.parse(detail.content))
@@ -184,12 +201,17 @@ const restoreDraft = () => {
     const draft = JSON.parse(raw) as {
       title: string
       category: string
-      tags: string
+      tags: string[] | string
       content: Delta
     }
     form.title = draft.title
     form.category = draft.category
-    form.tags = draft.tags
+    const rawTags = Array.isArray(draft.tags)
+      ? draft.tags
+      : draft.tags
+        ? draft.tags.split(',').map((tag) => tag.trim()).filter(Boolean)
+        : []
+    form.tags = rawTags
     form.content = new Delta(draft.content)
   } catch {
     window.dispatchEvent(
@@ -202,6 +224,28 @@ const restoreDraft = () => {
 
 const checkDraft = () => {
   hasDraft.value = Boolean(localStorage.getItem(draftKey.value))
+}
+
+const isTagSelected = (value: string | number) => form.tags.includes(String(value))
+
+const toggleTag = (value: string | number) => {
+  const id = String(value)
+  if (form.tags.includes(id)) {
+    form.tags = form.tags.filter((tag) => tag !== id)
+  } else {
+    form.tags = [...form.tags, id]
+  }
+}
+
+const applyDetailTags = () => {
+  if (!detailTagNames.value.length || !tagOptions.value.length) return
+  const map = new Map(tagOptions.value.map((tag) => [tag.label, String(tag.value)]))
+  const mapped = detailTagNames.value
+    .map((name) => map.get(name))
+    .filter((value): value is string => Boolean(value))
+  if (mapped.length) {
+    form.tags = mapped
+  }
 }
 
 watch(
@@ -268,6 +312,50 @@ onMounted(() => {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 12px;
+}
+
+.editor__tags {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.editor__label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--color-text-muted);
+}
+
+.editor__tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.editor__tag {
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(28, 155, 138, 0.3);
+  background: transparent;
+  color: var(--color-primary-strong);
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.editor__tag.is-active {
+  background: var(--color-primary-soft);
+  color: var(--color-primary-strong);
+}
+
+.editor__hint {
+  margin: 0;
+  font-size: 12px;
+  color: var(--color-text-muted);
 }
 
 @media (max-width: 900px) {

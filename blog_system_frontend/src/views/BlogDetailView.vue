@@ -287,6 +287,7 @@ const toggleCommentLike = async (comment: Comment) => {
     )
     return
   }
+  if (!comment.commentId) return
   const original = comment.likeCount ?? 0
   const nextLiked = !comment.__liked
   comment.__liked = nextLiked

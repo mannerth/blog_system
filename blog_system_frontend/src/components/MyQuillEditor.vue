@@ -103,14 +103,14 @@ div.container {
 .ql-toolbar.ql-snow {
     border: 1px solid var(--color-border);
     border-bottom: 0;
-    border-top-left-radius: var(--radius);
-    border-top-right-radius: var(--radius);
+    border-top-left-radius: var(--radius-md);
+    border-top-right-radius: var(--radius-md);
     background: #fff;
 }
 .ql-container.ql-snow {
     border: 1px solid var(--color-border);
-    border-bottom-left-radius: var(--radius);
-    border-bottom-right-radius: var(--radius);
+    border-bottom-left-radius: var(--radius-md);
+    border-bottom-right-radius: var(--radius-md);
     background: #fff;
     box-shadow: var(--shadow-md);
 }
