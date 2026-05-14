@@ -40,7 +40,19 @@
               {{ tag.label }}
             </button>
           </div>
-          <p class="editor__hint">可多选，最多选择多个标签。</p>
+          <p class="editor__hint">可多选，也可手动录入新标签。</p>
+          <div class="editor__tag-input">
+            <input
+              v-model="newTagName"
+              type="text"
+              class="editor__tag-field"
+              placeholder="输入新标签名称"
+              @keydown.enter.prevent="addNewTag"
+            />
+            <BaseButton variant="outline" :loading="addingTag" :disabled="!newTagName.trim()" @click="addNewTag">
+              添加
+            </BaseButton>
+          </div>
         </div>
       </div>
       <MyQuillEditor v-model:content="form.content" />
@@ -58,7 +70,7 @@ import BaseSelect, { type SelectOption } from '@/components/base/BaseSelect.vue'
 import MyQuillEditor from '@/components/MyQuillEditor.vue'
 import { createBlog, getBlogDetail, updateBlog } from '@/api/blogs'
 import { listCategories } from '@/api/categories'
-import { listTags } from '@/api/tags'
+import { createTag, listTags } from '@/api/tags'
 
 const router = useRouter()
 const route = useRoute()
@@ -84,6 +96,43 @@ const detailTagNames = ref<string[]>([])
 const selectableTags = computed(() =>
   tagOptions.value.filter((tag) => tag.value !== '')
 )
+
+const newTagName = ref('')
+const addingTag = ref(false)
+
+const addNewTag = async () => {
+  const name = newTagName.value.trim()
+  if (!name) return
+  if (tagOptions.value.some((opt) => opt.label === name)) {
+    window.dispatchEvent(
+      new CustomEvent('toast', {
+        detail: { title: '标签已存在', message: '该标签名称已存在，无需重复添加。', type: 'warning' },
+      }),
+    )
+    return
+  }
+  addingTag.value = true
+  try {
+    const tag = await createTag({ name })
+    const tagValue = String(tag.id)
+    tagOptions.value.push({ label: tag.name, value: tagValue })
+    form.tags = [...form.tags, tagValue]
+    newTagName.value = ''
+    window.dispatchEvent(
+      new CustomEvent('toast', {
+        detail: { title: '标签已添加', message: `标签「${tag.name}」已创建并选中。`, type: 'success' },
+      }),
+    )
+  } catch {
+    window.dispatchEvent(
+      new CustomEvent('toast', {
+        detail: { title: '添加失败', message: '无法创建新标签。', type: 'error' },
+      }),
+    )
+  } finally {
+    addingTag.value = false
+  }
+}
 
 const draftKey = computed(() => `blog-editor-draft-${route.params.id || 'new'}`)
 const hasDraft = ref(false)
@@ -356,6 +405,27 @@ onMounted(() => {
   margin: 0;
   font-size: 12px;
   color: var(--color-text-muted);
+}
+
+.editor__tag-input {
+  display: flex;
+  gap: 8px;
+}
+
+.editor__tag-field {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  font-size: 13px;
+  transition: border 0.2s ease, box-shadow 0.2s ease;
+}
+
+.editor__tag-field:focus {
+  outline: none;
+  border-color: rgba(28, 155, 138, 0.5);
+  box-shadow: 0 0 0 3px rgba(28, 155, 138, 0.18);
 }
 
 @media (max-width: 900px) {

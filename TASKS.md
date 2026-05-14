@@ -67,9 +67,9 @@
 - [x] 实现评论点赞（`likeComment`/`unlikeComment`）并同步计数。
 
 ## 分类与标签
-- [ ] 创建 `src/views/AdminCategoriesView.vue`（列表/新增/编辑/删除分类）。
-- [ ] 创建 `src/views/AdminTagsView.vue`（列表/新增/编辑/删除标签）。
-- [ ] 在博客编辑页支持选择分类与多标签输入，标签可手动录入或从列表选择。
+- [x] 创建 `src/views/AdminCategoriesView.vue`（列表/新增/编辑/删除分类）。
+- [x] 创建 `src/views/AdminTagsView.vue`（列表/新增/编辑/删除标签）。
+- [x] 在博客编辑页支持选择分类与多标签输入，标签可手动录入或从列表选择。
 
 ## 管理后台
 - [ ] 创建 `src/views/AdminDashboardView.vue` 作为管理入口页（统计/快捷入口）。

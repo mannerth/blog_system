@@ -108,7 +108,7 @@ const router = createRouter({
     {
       path: '/admin/categories',
       name: 'admin-categories',
-      component: () => import('../views/PlaceholderView.vue'),
+      component: () => import('../views/AdminCategoriesView.vue'),
       meta: {
         title: '分类管理',
         description: '维护站点分类。',
@@ -119,7 +119,7 @@ const router = createRouter({
     {
       path: '/admin/tags',
       name: 'admin-tags',
-      component: () => import('../views/PlaceholderView.vue'),
+      component: () => import('../views/AdminTagsView.vue'),
       meta: {
         title: '标签管理',
         description: '管理全站标签。',

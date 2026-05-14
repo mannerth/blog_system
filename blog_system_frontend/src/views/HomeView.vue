@@ -137,7 +137,7 @@ const fetchBlogs = async () => {
       size: size.value,
       category_id: filters.category || undefined,
       tag: filters.tag || undefined,
-      keyword: filters.keyword || undefined,
+      keyword: filters.keyword,
       sort: filters.sort || undefined,
     })
     blogs.value = data.content ?? []
