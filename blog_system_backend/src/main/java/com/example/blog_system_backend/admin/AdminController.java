@@ -4,6 +4,7 @@ import java.util.Map;
 
 import com.example.blog_system_backend.blog.dto.BlogResponse;
 import com.example.blog_system_backend.blog.dto.BlogUpdateRequest;
+import com.example.blog_system_backend.comment.dto.CommentResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
@@ -38,5 +39,13 @@ public class AdminController {
     @DeleteMapping("/blogs/{id}")
     public void deleteBlog(@PathVariable Long id) {
         adminService.deleteBlog(id);
+    }
+
+    @GetMapping("/comments")
+    public Page<CommentResponse> getAllComments(Pageable pageable) { return adminService.getAllComments(pageable); }
+
+    @DeleteMapping("/comments/{id}")
+    public void deleteComment(@PathVariable Long id) {
+        adminService.deleteComment(id);
     }
 }
