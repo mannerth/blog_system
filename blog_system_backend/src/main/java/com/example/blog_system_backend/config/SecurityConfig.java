@@ -34,6 +34,8 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/tags/**").permitAll()
                         .requestMatchers("/api/categories/**").permitAll()
@@ -45,16 +47,6 @@ public class SecurityConfig {
                         .requestMatchers("/api/users/me").authenticated()
                         .requestMatchers("/api/users/me/**").authenticated()
 
-                        // ==========================================
-                        // 【管理员接口】只限制具体的增删改查，不拦截 /me
-                        // ==========================================
-                        .requestMatchers(HttpMethod.GET, "/api/users").hasRole("ADMIN")      // 用户列表
-                        .requestMatchers(HttpMethod.GET, "/api/users/{id}").hasRole("ADMIN")  // 查单个用户
-                        .requestMatchers(HttpMethod.POST, "/api/users").hasRole("ADMIN")     // 新建用户
-                        .requestMatchers(HttpMethod.PUT, "/api/users/{id}").hasRole("ADMIN") // 修改用户
-                        .requestMatchers(HttpMethod.DELETE, "/api/users/{id}").hasRole("ADMIN")// 删除用户
-
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(authenticationProvider)

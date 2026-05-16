@@ -1,7 +1,6 @@
 package com.example.blog_system_backend.comment;
 
 import com.example.blog_system_backend.blog.Blog;
-import com.example.blog_system_backend.comment.CommentLike;
 import com.example.blog_system_backend.blog.BlogRepository;
 import com.example.blog_system_backend.comment.dto.CommentRequest;
 import com.example.blog_system_backend.comment.dto.CommentResponse;
@@ -16,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -89,6 +89,20 @@ public class CommentService {
         if (!isOwner && !isAdmin) {
             throw new IllegalArgumentException("No permission to delete this comment");
         }
+
+        // 1. 找出所有子评论
+        List<Comment> childComments = commentRepository.findByParentCommentId(comment.getId());
+
+        // 2. 收集所有评论ID（自己 + 子评论）
+        List<Long> allCommentIds = new ArrayList<>();
+        allCommentIds.add(comment.getId());
+        childComments.forEach(c -> allCommentIds.add(c.getId()));
+
+        // 3. 删除所有评论的点赞
+        commentLikeRepository.deleteByCommentIdIn(allCommentIds);
+
+        // 4. 删除子评论
+        commentRepository.deleteAll(childComments);
 
         commentRepository.delete(comment);
     }

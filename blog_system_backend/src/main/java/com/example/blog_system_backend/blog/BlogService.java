@@ -5,7 +5,11 @@ import com.example.blog_system_backend.blog.dto.BlogResponse;
 import com.example.blog_system_backend.blog.dto.BlogUpdateRequest;
 import com.example.blog_system_backend.category.Category;
 import com.example.blog_system_backend.category.CategoryRepository;
+import com.example.blog_system_backend.comment.Comment;
+import com.example.blog_system_backend.comment.CommentLikeRepository;
+import com.example.blog_system_backend.comment.CommentRepository;
 import com.example.blog_system_backend.common.BlogNotAllowedToModifyException;
+import com.example.blog_system_backend.common.CategoryNotFoundException;
 import com.example.blog_system_backend.tag.Tag;
 import com.example.blog_system_backend.tag.TagRepository;
 import com.example.blog_system_backend.user.User;
@@ -16,10 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,13 +31,17 @@ public class BlogService {
     private final TagRepository tagRepository;
     private final UserRepository userRepository;
     private final BlogLikeRepository blogLikeRepository;
+    private final CommentRepository commentRepository;
+    private final CommentLikeRepository commentLikeRepository;
 
-    public BlogService(BlogRepository blogRepository, CategoryRepository categoryRepository, TagRepository tagRepository, UserRepository userRepository, BlogLikeRepository blogLikeRepository) {
+    public BlogService(BlogRepository blogRepository, CategoryRepository categoryRepository, TagRepository tagRepository, UserRepository userRepository, BlogLikeRepository blogLikeRepository, CommentRepository commentRepository, CommentLikeRepository commentLikeRepository) {
         this.blogRepository = blogRepository;
         this.categoryRepository = categoryRepository;
         this.tagRepository = tagRepository;
         this.userRepository = userRepository;
         this.blogLikeRepository = blogLikeRepository;
+        this.commentRepository = commentRepository;
+        this.commentLikeRepository = commentLikeRepository;
     }
 
     public BlogResponse getById(Long id) {
@@ -109,7 +114,7 @@ public class BlogService {
         }
         if (request.categoryId() != null) {
             Category category = categoryRepository.findById(request.categoryId())
-                    .orElseThrow(() -> new EntityNotFoundException("分类不存在"));
+                    .orElseThrow(() -> new CategoryNotFoundException(request.categoryId()));
             blog.setCategory(category);
         }
         if (request.tagIds() != null) {
@@ -120,12 +125,35 @@ public class BlogService {
         return toResponse(blogRepository.save(blog));
     }
 
+    @Transactional
     public void delete(Long id, Long loginUserId) {
         Blog blog = findById(id);
         if (!blog.getUser().getId().equals(loginUserId)) {
-            throw new RuntimeException("无权限删除他人博客");
+            throw new BlogNotAllowedToModifyException(loginUserId);
         }
+        deleteBlogRelations(id);
         blogRepository.deleteById(id);
+    }
+
+    public void deleteBlogRelations(Long blogId) {
+        // 1. 获取所有评论
+        List<Comment> comments = commentRepository.findIdsByBlogId(blogId);
+
+        // 2. 提取评论ID
+        List<Long> commentIds = comments.stream()
+                .map(Comment::getId)
+                .toList();
+
+        // 3. 删除评论点赞
+        if (!commentIds.isEmpty()) {
+            commentLikeRepository.deleteByCommentIdIn(commentIds);
+        }
+
+        // 4. 删除评论
+        commentRepository.deleteByBlogId(blogId);
+
+        // 5. 删除博客点赞
+        blogLikeRepository.deleteByBlogId(blogId);
     }
 
     // ===================== 点赞 / 取消点赞 =====================

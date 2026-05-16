@@ -10,4 +10,6 @@ public interface BlogLikeRepository extends JpaRepository<BlogLike, Long> {
 
     // 统计博客的点赞数
     long countByBlogId(Long blogId);
+
+    void deleteByBlogId(Long blogId);
 }
