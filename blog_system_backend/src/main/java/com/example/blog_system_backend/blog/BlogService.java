@@ -182,7 +182,14 @@ public class BlogService {
         }
     }
 
-    // ===================== 查询当前用户是否点赞 =====================
+    @Transactional
+    public int incrementViewCount(Long id) {
+        Blog blog = findById(id);
+        blog.setViewCount(blog.getViewCount() + 1);
+        blogRepository.save(blog);
+        return blog.getViewCount();
+    }
+
     public boolean isLiked(Long blogId, Long userId) {
         findById(blogId);
         return blogLikeRepository.findByUserIdAndBlogId(userId, blogId).isPresent();

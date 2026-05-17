@@ -156,3 +156,6 @@ export const updateAdminBlog = (blogId: number, payload: BlogUpdateRequest) =>
 // TODO: 后端待实现
 export const deleteAdminBlog = (blogId: number) =>
   http.delete<void>(`/admin/blogs/${blogId}`)
+
+export const recordBlogView = (blogId: number) =>
+  http.post<number, void>(`/blogs/${blogId}/view`)

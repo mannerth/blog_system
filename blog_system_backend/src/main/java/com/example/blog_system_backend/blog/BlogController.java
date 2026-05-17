@@ -137,6 +137,12 @@ public class BlogController {
         return blogService.toggleLike(blogId, userId);
     }
 
+    // 记录浏览量
+    @PostMapping("/{id}/view")
+    public int recordView(@PathVariable Long id) {
+        return blogService.incrementViewCount(id);
+    }
+
     // 查询当前用户是否点赞
     @GetMapping("/{blogId}/isLiked")
     public boolean isLiked(

@@ -10,6 +10,10 @@
           <span>{{ blog?.categoryName || '未分类' }}</span>
           <span class="dot"></span>
           <span>{{ createdAt }}</span>
+          <span class="dot"></span>
+          <span>浏览 {{ blog?.viewCount ?? 0 }}</span>
+          <span class="dot"></span>
+          <span>点赞 {{ blog?.likeCount ?? 0 }}</span>
         </p>
       </div>
       <BaseButton variant="outline" :loading="liking" @click="toggleLike">
@@ -82,7 +86,7 @@ import EmptyState from '@/components/base/EmptyState.vue'
 import LoadingState from '@/components/base/LoadingState.vue'
 import MyQuillEditor from '@/components/MyQuillEditor.vue'
 import CommentList from '@/components/CommentList.vue'
-import { getBlogDetail } from '@/api/blogs'
+import { getBlogDetail, recordBlogView } from '@/api/blogs'
 import { toggleBlogLike, toggleCommentLike as toggleCommentLikeApi } from '@/api/likes'
 import { createBlogComment, deleteComment, listBlogComments, replyComment, type Comment } from '@/api/comments'
 import { useAuthStore } from '@/stores/auth'
@@ -137,6 +141,7 @@ const fetchDetail = async () => {
   loading.value = true
   try {
     blog.value = await getBlogDetail(blogId.value)
+    recordBlogView(blogId.value).catch(() => {})
   } catch {
     blog.value = null
     window.dispatchEvent(

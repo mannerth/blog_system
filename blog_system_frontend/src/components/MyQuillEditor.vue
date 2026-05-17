@@ -120,6 +120,10 @@ div.container {
     color: var(--color-text);
     padding: 16px 18px;
 }
+.ql-editor strong,
+.ql-editor b {
+    font-weight: 700;
+}
 .ql-editor a { color: var(--color-primary); text-decoration: underline; }
 .ql-picker, .ql-stroke, .ql-fill { color: var(--color-text); stroke: var(--color-text); }
 .ql-toolbar .ql-picker-label:hover, .ql-toolbar .ql-picker-item:hover, .ql-toolbar button:hover {
