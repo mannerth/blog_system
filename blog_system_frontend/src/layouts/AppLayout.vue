@@ -3,8 +3,8 @@
     <header class="app-header">
       <div class="app-header__inner">
         <RouterLink to="/" class="brand">
-          <span class="brand__mark">潮汐</span>
-          <span class="brand__name">Blue Green Blog</span>
+          <span class="brand__mark">星运</span>
+          <span class="brand__name">Stars</span>
         </RouterLink>
 
         
@@ -40,7 +40,7 @@
         <div class="app-footer__meta">
           <span>把我们衣服纽扣互扣 那就不用分离</span>
           <span class="dot"></span>
-          <span>Blog System</span>
+          <span>Stars</span>
           <span class="dot"></span>
           <span>2026</span>
         </div>
