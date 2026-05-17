@@ -72,10 +72,10 @@
 - [x] 在博客编辑页支持选择分类与多标签输入，标签可手动录入或从列表选择。
 
 ## 管理后台
-- [ ] 创建 `src/views/AdminDashboardView.vue` 作为管理入口页（统计/快捷入口）。
-- [ ] 创建 `src/views/AdminBlogListView.vue`，调用 `listAdminBlogs` 支持筛选/编辑/删除。
-- [ ] 创建 `src/views/AdminUsersView.vue`，调用 `listUsers`/`createUser`/`updateUser`/`deleteUser` 管理用户。
-- [ ] 为 `/admin/**` 路由添加角色校验，仅 ADMIN 可访问。
+- [x] 创建 `src/views/AdminDashboardView.vue` 作为管理入口页（统计/快捷入口）。
+- [x] 创建 `src/views/AdminBlogListView.vue`，调用 `listAdminBlogs` 支持筛选/编辑/删除。
+- [x] 创建 `src/views/AdminUsersView.vue`，调用 `listUsers`/`createUser`/`updateUser`/`deleteUser` 管理用户。
+- [x] 为 `/admin/**` 路由添加角色校验，仅 ADMIN 可访问。
 
 ## 体验与可选扩展
 - [ ] 增加全局请求错误提示与加载遮罩（基于 `ApiError` 分类处理）。

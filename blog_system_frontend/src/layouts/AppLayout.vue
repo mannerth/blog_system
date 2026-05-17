@@ -7,16 +7,7 @@
           <span class="brand__name">Blue Green Blog</span>
         </RouterLink>
 
-        <div class="search">
-          <span class="search__label">搜索</span>
-          <input
-            v-model="searchKeyword"
-            class="search__input"
-            type="search"
-            placeholder="试试搜索标题或标签"
-            @keyup.enter="applySearch"
-          />
-        </div>
+        
 
         <div class="user-area">
           <template v-if="isAuthenticated">

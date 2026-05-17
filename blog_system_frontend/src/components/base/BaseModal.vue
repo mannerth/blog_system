@@ -1,7 +1,7 @@
 <template>
   <teleport to="body">
     <transition name="modal">
-      <div v-if="modelValue" class="base-modal" role="dialog" aria-modal="true">
+      <div v-if="props.modelValue" class="base-modal" role="dialog" aria-modal="true">
         <div class="base-modal__overlay" @click="close"></div>
         <div class="base-modal__panel">
           <header class="base-modal__header">
@@ -46,8 +46,6 @@ const close = () => {
   emit('update:modelValue', false)
   emit('close')
 }
-
-const { modelValue } = props
 </script>
 
 <style scoped>

@@ -86,7 +86,7 @@ const router = createRouter({
     {
       path: '/admin',
       name: 'admin-dashboard',
-      component: () => import('../views/PlaceholderView.vue'),
+      component: () => import('../views/AdminDashboardView.vue'),
       meta: {
         title: '管理后台',
         description: '管理员可以在此查看全站数据。',
@@ -97,7 +97,7 @@ const router = createRouter({
     {
       path: '/admin/blogs',
       name: 'admin-blogs',
-      component: () => import('../views/PlaceholderView.vue'),
+      component: () => import('../views/AdminBlogListView.vue'),
       meta: {
         title: '博客管理',
         description: '筛选、编辑与管理博客。',
@@ -130,7 +130,7 @@ const router = createRouter({
     {
       path: '/admin/users',
       name: 'admin-users',
-      component: () => import('../views/PlaceholderView.vue'),
+      component: () => import('../views/AdminUsersView.vue'),
       meta: {
         title: '用户管理',
         description: '查看与管理用户信息。',

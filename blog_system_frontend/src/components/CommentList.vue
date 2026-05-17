@@ -18,7 +18,7 @@
     <LoadingState v-if="loading" />
     <EmptyState v-else-if="!comments.length" title="暂无评论" description="抢先发表第一条评论吧。" />
     <div v-else class="comment-list__items">
-      <CommentItem v-for="comment in comments" :key="comment.commentId" :comment="comment">
+      <CommentItem v-for="comment in comments" :key="comment.id" :comment="comment">
         <template #actions="slotProps">
           <slot name="actions" v-bind="slotProps" />
         </template>

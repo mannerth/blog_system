@@ -6,13 +6,10 @@
         <h1>博客与灵感清单</h1>
         <p class="home__desc">浏览最新文章，按分类、标签或关键词筛选。</p>
       </div>
-      <div class="home__controls">
-        <BaseInput v-model="filters.keyword" placeholder="搜索标题或内容" clearable />
-        <BaseSelect v-model="filters.sort" :options="sortOptions" placeholder="排序" />
-      </div>
     </header>
 
     <div class="home__filters">
+      <BaseInput v-model="filters.keyword" placeholder="搜索标题或内容" clearable />
       <BaseSelect
         v-model="filters.category"
         label="分类"
@@ -25,6 +22,7 @@
         placeholder="全部标签"
         :options="tagOptions"
       />
+      <BaseSelect v-model="filters.sort" :options="sortOptions" placeholder="排序" />
       <BaseButton variant="ghost" @click="resetFilters">重置筛选</BaseButton>
     </div>
 
@@ -59,7 +57,7 @@ import BaseSelect, { type SelectOption } from '@/components/base/BaseSelect.vue'
 import BasePagination from '@/components/base/BasePagination.vue'
 import EmptyState from '@/components/base/EmptyState.vue'
 import LoadingState from '@/components/base/LoadingState.vue'
-import { listBlogs } from '@/api/blogs'
+import { listBlogs, type Blog } from '@/api/blogs'
 import { listCategories } from '@/api/categories'
 import { listTags } from '@/api/tags'
 
@@ -67,7 +65,7 @@ const router = useRouter()
 const route = useRoute()
 
 const loading = ref(false)
-const blogs = ref<Awaited<ReturnType<typeof listBlogs>>['items']>([])
+const blogs = ref<Blog[]>([])
 const total = ref(0)
 const page = ref(1)
 const size = ref(10)
@@ -254,7 +252,7 @@ onUnmounted(() => {
 .home__header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-end;
+  align-items: flex-start;
   gap: 24px;
 }
 
@@ -271,15 +269,9 @@ onUnmounted(() => {
   max-width: 420px;
 }
 
-.home__controls {
-  display: grid;
-  gap: 12px;
-  width: min(360px, 100%);
-}
-
 .home__filters {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-template-columns: 1fr repeat(3, auto) auto;
   gap: 12px;
   align-items: end;
 }
@@ -289,14 +281,16 @@ onUnmounted(() => {
   gap: 18px;
 }
 
+@media (max-width: 1024px) {
+  .home__filters {
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  }
+}
+
 @media (max-width: 900px) {
   .home__header {
     flex-direction: column;
     align-items: flex-start;
-  }
-
-  .home__controls {
-    width: 100%;
   }
 }
 </style>

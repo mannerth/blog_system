@@ -1,10 +1,11 @@
 import { http } from '@/utils/http'
-import type { ApiUser, PageResponse } from './types'
+import type { PageResponse } from './types'
 
 export interface Comment {
-  commentId?: number
+  id?: number
   blogId?: number
-  user?: ApiUser
+  userId?: number
+  username?: string
   parentCommentId?: number | null
   content?: string
   likeCount?: number
@@ -19,7 +20,6 @@ export interface CommentRequest {
 
 export type CommentListParams = Record<string, string | number | boolean | null | undefined>
 
-// TODO: 后端待实现
 const normalizePageParams = (params?: CommentListParams) => {
   const normalized: Record<string, string | number | boolean | null | undefined> = {}
   if (params?.page !== undefined) {
@@ -40,14 +40,11 @@ const normalizePageParams = (params?: CommentListParams) => {
 export const listBlogComments = (blogId: number, params?: CommentListParams) =>
   http.get<PageResponse<Comment>>(`/blogs/${blogId}/comments`, { params: normalizePageParams(params) })
 
-// TODO: 后端待实现
 export const createBlogComment = (blogId: number, payload: CommentRequest) =>
   http.post<Comment, CommentRequest>(`/blogs/${blogId}/comments`, payload)
 
-// TODO: 后端待实现
 export const replyComment = (commentId: number, payload: CommentRequest) =>
-  http.post<Comment, CommentRequest>(`/comments/${commentId}/reply`, payload)
+  http.post<Comment, CommentRequest>(`/comments/${commentId}/replies`, payload)
 
-// TODO: 后端待实现
 export const deleteComment = (commentId: number) =>
   http.delete<void>(`/comments/${commentId}`)

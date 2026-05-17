@@ -1,8 +1,8 @@
 <template>
   <article class="comment-item" :style="indentStyle">
     <div class="comment-item__avatar">
-      <img v-if="avatarUrl" :src="avatarUrl" :alt="authorName" />
-      <span v-else>{{ authorInitial }}</span>
+    <img v-if="false" /> <!-- avatar not available from backend -->
+    <span v-else>{{ authorInitial }}</span>
     </div>
     <div class="comment-item__body">
       <header class="comment-item__meta">
@@ -23,7 +23,7 @@
   <div v-if="comment.replies?.length" class="comment-item__replies">
     <CommentItem
       v-for="reply in comment.replies"
-      :key="reply.commentId"
+      :key="reply.id"
       :comment="reply"
       :depth="depth + 1"
     >
@@ -40,6 +40,12 @@ import type { Comment } from '@/api/comments'
 
 defineOptions({ name: 'CommentItem' })
 
+type SlotComment = Omit<Comment, 'replies'>
+
+defineSlots<{
+  actions?: (props: { comment: SlotComment }) => unknown
+}>()
+
 const props = withDefaults(
   defineProps<{
     comment: Comment
@@ -53,9 +59,8 @@ const props = withDefaults(
 const slots = useSlots()
 const hasActions = computed(() => Boolean(slots.actions))
 
-const authorName = computed(() => props.comment.user?.username ?? '匿名用户')
+const authorName = computed(() => props.comment.username ?? '匿名用户')
 const authorInitial = computed(() => authorName.value.slice(0, 1))
-const avatarUrl = computed(() => props.comment.user?.avatarUrl ?? '')
 
 const createdAt = computed(() => {
   if (!props.comment.createdAt) return '—'

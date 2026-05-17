@@ -43,7 +43,7 @@
       @refresh="fetchComments"
     >
       <template #actions="{ comment }">
-        <BaseButton variant="ghost" @click="openReply(comment)">回复</BaseButton>
+        <BaseButton v-if="!comment.parentCommentId" variant="ghost" @click="openReply(comment)">回复</BaseButton>
         <BaseButton variant="outline" @click="toggleCommentLike(comment)">
           {{ comment.__liked ? '已赞' : '点赞' }} {{ comment.likeCount ?? 0 }}
         </BaseButton>
@@ -83,9 +83,8 @@ import LoadingState from '@/components/base/LoadingState.vue'
 import MyQuillEditor from '@/components/MyQuillEditor.vue'
 import CommentList from '@/components/CommentList.vue'
 import { getBlogDetail } from '@/api/blogs'
-import { likeBlog, unlikeBlog } from '@/api/likes'
+import { toggleBlogLike, toggleCommentLike as toggleCommentLikeApi } from '@/api/likes'
 import { createBlogComment, deleteComment, listBlogComments, replyComment, type Comment } from '@/api/comments'
-import { likeComment, unlikeComment } from '@/api/likes'
 import { useAuthStore } from '@/stores/auth'
 
 const route = useRoute()
@@ -219,10 +218,10 @@ const openReply = (comment: Comment) => {
 
 const submitReply = async () => {
   replyError.value = replyDraft.value ? '' : '请输入回复内容'
-  if (replyError.value || !replyTarget.value?.commentId) return
+  if (replyError.value || !replyTarget.value?.id) return
   replySubmitting.value = true
   try {
-    await replyComment(replyTarget.value.commentId, { content: replyDraft.value })
+    await replyComment(replyTarget.value.id, { content: replyDraft.value })
     replyDraft.value = ''
     replyOpen.value = false
     window.dispatchEvent(
@@ -248,10 +247,10 @@ const openDelete = (comment: Comment) => {
 }
 
 const confirmDelete = async () => {
-  if (!deleteTarget.value?.commentId) return
+  if (!deleteTarget.value?.id) return
   deleteSubmitting.value = true
   try {
-    await deleteComment(deleteTarget.value.commentId)
+    await deleteComment(deleteTarget.value.id)
     window.dispatchEvent(
       new CustomEvent('toast', {
         detail: { title: '删除成功', message: '评论已删除。', type: 'success' },
@@ -273,7 +272,7 @@ const confirmDelete = async () => {
 const canDelete = (comment: Comment) => {
   const username = authStore.user?.username
   if (!username) return false
-  if (comment.user?.username === username) return true
+  if (comment.username === username) return true
   if (blog.value?.username === username) return true
   return authStore.isAdmin
 }
@@ -287,23 +286,13 @@ const toggleCommentLike = async (comment: Comment) => {
     )
     return
   }
-  if (!comment.commentId) return
+  if (!comment.id) return
   const original = comment.likeCount ?? 0
   const nextLiked = !comment.__liked
   comment.__liked = nextLiked
   comment.likeCount = Math.max(0, original + (nextLiked ? 1 : -1))
   try {
-    if (nextLiked) {
-      const result = await likeComment(comment.commentId ?? 0)
-      if (result?.like_count !== undefined) {
-        comment.likeCount = result.like_count
-      }
-    } else {
-      const result = await unlikeComment(comment.commentId ?? 0)
-      if (result?.like_count !== undefined) {
-        comment.likeCount = result.like_count
-      }
-    }
+    await toggleCommentLikeApi(comment.id)
   } catch {
     comment.__liked = !nextLiked
     comment.likeCount = original
@@ -323,17 +312,7 @@ const toggleLike = async () => {
   liked.value = nextLiked
   blog.value.likeCount = Math.max(0, original + (nextLiked ? 1 : -1))
   try {
-    if (nextLiked) {
-      const result = await likeBlog(blog.value.id ?? blogId.value)
-      if (result?.like_count !== undefined) {
-        blog.value.likeCount = result.like_count
-      }
-    } else {
-      const result = await unlikeBlog(blog.value.id ?? blogId.value)
-      if (result?.like_count !== undefined) {
-        blog.value.likeCount = result.like_count
-      }
-    }
+    await toggleBlogLike(blog.value.id ?? blogId.value)
   } catch {
     liked.value = !nextLiked
     blog.value.likeCount = original
