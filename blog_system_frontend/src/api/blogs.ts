@@ -34,7 +34,7 @@ export interface BlogListParams {
   page?: number
   size?: number
   category_id?: string | number
-  tag?: string | number
+  tagIds?: number[]
   keyword?: string
   sort?: string
 }
@@ -58,7 +58,7 @@ const normalizePageParams = (params?: { page?: number; size?: number }) => {
 
 // TODO: 后端待实现
 export const listBlogs = (params?: BlogListParams) => {
-  const normalized: Record<string, string | number | boolean | null | undefined> = {
+  const normalized: Record<string, string | number | boolean | null | undefined | number[]> = {
     ...normalizePageParams(params),
     keyword: params?.keyword,
   }
@@ -68,11 +68,8 @@ export const listBlogs = (params?: BlogListParams) => {
       normalized.categoryId = categoryId
     }
   }
-  if (params?.tag !== undefined && params?.tag !== '') {
-    const tagId = Number(params.tag)
-    if (!Number.isNaN(tagId)) {
-      normalized.tagId = tagId
-    }
+  if (params?.tagIds && params.tagIds.length > 0) {
+    normalized.tagIds = params.tagIds
   }
   if (params?.sort) {
     normalized.sort = params.sort
@@ -131,7 +128,7 @@ export const listAdminBlogs = (params?: BlogListParams) =>
         params?.category_id !== undefined && params?.category_id !== ''
           ? Number(params.category_id)
           : undefined,
-      tagId: params?.tag !== undefined && params?.tag !== '' ? Number(params.tag) : undefined,
+      tagIds: params?.tagIds,
       keyword: params?.keyword,
       sort: params?.sort,
     },

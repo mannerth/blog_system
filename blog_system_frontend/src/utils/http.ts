@@ -13,7 +13,7 @@ export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
 
 export interface RequestOptions<TBody = unknown> {
   method?: HttpMethod
-  params?: Record<string, string | number | boolean | null | undefined>
+  params?: Record<string, string | number | boolean | null | undefined | number[]>
   body?: TBody
   headers?: Record<string, string>
   signal?: AbortSignal
@@ -28,7 +28,11 @@ const serializeParams = (params?: RequestOptions['params']): string => {
   const search = new URLSearchParams()
   Object.entries(params).forEach(([key, value]) => {
     if (value === undefined || value === null) return
-    search.append(key, String(value))
+    if (Array.isArray(value)) {
+      value.forEach((v) => search.append(key, String(v)))
+    } else {
+      search.append(key, String(value))
+    }
   })
   const query = search.toString()
   return query ? `?${query}` : ''
@@ -115,7 +119,11 @@ export const request = async <TResponse = unknown, TBody = unknown>(
     const data = await toJson<TResponse>(response)
 
     if (!response.ok) {
-      throw new ApiError(response.statusText || 'Request failed', response.status, data)
+      const errMessage =
+        data && typeof data === 'object' && 'message' in (data as Record<string, unknown>)
+          ? String((data as Record<string, unknown>).message)
+          : response.statusText || 'Request failed'
+      throw new ApiError(errMessage, response.status, data)
     }
 
     return data

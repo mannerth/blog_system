@@ -10,9 +10,21 @@
 
     <div class="admin-blogs__filters">
       <BaseInput v-model="keyword" placeholder="搜索标题或内容" clearable @keydown.enter="handleSearch" />
-      <BaseSelect v-model="sort" :options="sortOptions" placeholder="排序" />
+      <BaseSelect
+        v-model="filters.category"
+        label="分类"
+        placeholder="全部分类"
+        :options="categoryOptions"
+      />
+      <BaseSelect v-model="filters.sort" :options="sortOptions" placeholder="排序" />
       <BaseButton variant="ghost" @click="resetFilters">重置</BaseButton>
     </div>
+
+    <TagChipSelector
+      v-model="filters.tagIds"
+      label="标签"
+      :options="tagChipOptions"
+    />
 
     <LoadingState v-if="loading" />
     <EmptyState v-else-if="!blogs.length" title="暂无博客" description="全站还没有任何人发布博客。" />
@@ -56,7 +68,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue'
+import { onMounted, reactive, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import BaseButton from '@/components/base/BaseButton.vue'
 import BaseInput from '@/components/base/BaseInput.vue'
@@ -65,7 +77,10 @@ import BaseModal from '@/components/base/BaseModal.vue'
 import BasePagination from '@/components/base/BasePagination.vue'
 import EmptyState from '@/components/base/EmptyState.vue'
 import LoadingState from '@/components/base/LoadingState.vue'
+import TagChipSelector from '@/components/base/TagChipSelector.vue'
 import { deleteAdminBlog, listAdminBlogs, type Blog } from '@/api/blogs'
+import { listCategories } from '@/api/categories'
+import { listTags } from '@/api/tags'
 
 const router = useRouter()
 
@@ -76,7 +91,12 @@ const total = ref(0)
 const page = ref(1)
 const size = ref(10)
 const keyword = ref('')
-const sort = ref('createAt,desc')
+
+const filters = reactive({
+  category: '',
+  tagIds: [] as number[],
+  sort: 'createAt,desc',
+})
 
 const sortOptions: SelectOption[] = [
   { label: '最新发布', value: 'createAt,desc' },
@@ -84,6 +104,9 @@ const sortOptions: SelectOption[] = [
   { label: '最多浏览', value: 'viewCount,desc' },
   { label: '最多点赞', value: 'likeCount,desc' },
 ]
+
+const categoryOptions = ref<SelectOption[]>([])
+const tagChipOptions = ref<SelectOption[]>([])
 
 const deleteOpen = ref(false)
 const deleteTarget = ref<Blog | null>(null)
@@ -94,8 +117,10 @@ const fetchBlogs = async () => {
     const data = await listAdminBlogs({
       page: page.value,
       size: size.value,
+      category_id: filters.category || undefined,
+      tagIds: filters.tagIds.length > 0 ? filters.tagIds : undefined,
       keyword: keyword.value || undefined,
-      sort: sort.value || undefined,
+      sort: filters.sort || undefined,
     })
     blogs.value = data.content ?? []
     total.value = data.totalElements ?? 0
@@ -109,6 +134,26 @@ const fetchBlogs = async () => {
     )
   } finally {
     loading.value = false
+  }
+}
+
+const fetchFilters = async () => {
+  try {
+    const [categories, tags] = await Promise.all([listCategories(), listTags()])
+    categoryOptions.value = [
+      { label: '全部分类', value: '' },
+      ...categories.map((cat) => ({
+        label: cat.name ?? '未命名',
+        value: String(cat.id ?? ''),
+      })),
+    ]
+    tagChipOptions.value = tags.map((tag) => ({
+      label: tag.name ?? '标签',
+      value: tag.id ?? 0,
+    }))
+  } catch {
+    categoryOptions.value = [{ label: '全部分类', value: '' }]
+    tagChipOptions.value = []
   }
 }
 
@@ -137,10 +182,12 @@ const confirmDelete = async () => {
       page.value -= 1
     }
     await fetchBlogs()
-  } catch {
+  } catch (err: unknown) {
+    const message =
+      err instanceof Error ? err.message : '请稍后再试。'
     window.dispatchEvent(
       new CustomEvent('toast', {
-        detail: { title: '删除失败', message: '请稍后再试。', type: 'error' },
+        detail: { title: '删除失败', message, type: 'error' },
       }),
     )
   } finally {
@@ -164,8 +211,11 @@ const handleSearch = () => {
 
 const resetFilters = () => {
   keyword.value = ''
-  sort.value = 'createAt,desc'
+  filters.category = ''
+  filters.tagIds = []
+  filters.sort = 'createAt,desc'
   page.value = 1
+  fetchBlogs()
 }
 
 const formatDate = (value?: string) => {
@@ -175,11 +225,20 @@ const formatDate = (value?: string) => {
   return date.toLocaleDateString()
 }
 
-watch([page, size, sort], () => {
+watch([page, size], () => {
   fetchBlogs()
 })
 
+watch(
+  () => ({ ...filters }),
+  () => {
+    page.value = 1
+    fetchBlogs()
+  },
+)
+
 onMounted(() => {
+  fetchFilters()
   fetchBlogs()
 })
 </script>
@@ -211,7 +270,7 @@ onMounted(() => {
 
 .admin-blogs__filters {
   display: grid;
-  grid-template-columns: 1fr 180px auto;
+  grid-template-columns: 1fr repeat(3, auto) auto;
   gap: 12px;
   align-items: end;
 }
@@ -260,13 +319,15 @@ onMounted(() => {
   flex-shrink: 0;
 }
 
+@media (max-width: 1024px) {
+  .admin-blogs__filters {
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  }
+}
+
 @media (max-width: 900px) {
   .admin-blogs__header {
     flex-direction: column;
-  }
-
-  .admin-blogs__filters {
-    grid-template-columns: 1fr;
   }
 
   .admin-blogs__card {

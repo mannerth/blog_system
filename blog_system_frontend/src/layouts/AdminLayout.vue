@@ -24,7 +24,8 @@
           <small>Blue Green Blog</small>
         </div>
         <div class="admin-topbar__actions">
-          <button class="admin-ghost" type="button">退出登录</button>
+          <span class="admin-topbar__user">{{ userName }}</span>
+          <button class="admin-ghost" type="button" @click="handleLogout">退出登录</button>
         </div>
       </header>
 
@@ -36,7 +37,24 @@
 </template>
 
 <script setup lang="ts">
-import { RouterLink } from 'vue-router'
+import { computed } from 'vue'
+import { RouterLink, useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
+
+const router = useRouter()
+const authStore = useAuthStore()
+
+const userName = computed(() => authStore.user?.username ?? '管理员')
+
+const handleLogout = () => {
+  authStore.logout()
+  window.dispatchEvent(
+    new CustomEvent('toast', {
+      detail: { title: '已退出登录', message: '期待再次见到你。', type: 'warning' },
+    }),
+  )
+  router.replace('/')
+}
 </script>
 
 <style scoped>
@@ -144,7 +162,13 @@ import { RouterLink } from 'vue-router'
 
 .admin-topbar__actions {
   display: flex;
+  align-items: center;
   gap: 12px;
+}
+
+.admin-topbar__user {
+  font-size: 14px;
+  color: var(--color-text-muted);
 }
 
 .admin-ghost {

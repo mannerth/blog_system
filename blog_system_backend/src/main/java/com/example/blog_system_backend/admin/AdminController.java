@@ -1,5 +1,6 @@
 package com.example.blog_system_backend.admin;
 
+import java.util.Collection;
 import java.util.Map;
 
 import com.example.blog_system_backend.blog.dto.BlogResponse;
@@ -25,8 +26,13 @@ public class AdminController {
     }
 
     @GetMapping("/blogs")
-    public Page<BlogResponse> getAllBlogs(Pageable pageable) {
-        return adminService.getAllBlogs(pageable);
+    public Page<BlogResponse> getAllBlogs(
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) Collection<Long> tagIds,
+            @RequestParam(required = false) String keyword,
+            Pageable pageable
+    ) {
+        return adminService.getAllBlogs(categoryId, tagIds, keyword, pageable);
     }
 
     // PUT 管理员编辑任意博客

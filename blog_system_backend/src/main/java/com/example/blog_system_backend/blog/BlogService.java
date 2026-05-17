@@ -15,8 +15,14 @@ import com.example.blog_system_backend.tag.TagRepository;
 import com.example.blog_system_backend.user.User;
 import com.example.blog_system_backend.user.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.criteria.Predicate;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,6 +52,32 @@ public class BlogService {
 
     public BlogResponse getById(Long id) {
         return toResponse(findById(id));
+    }
+
+    public Page<BlogResponse> findAll(Long categoryId, Collection<Long> tagIds, String keyword, Pageable pageable) {
+        Specification<Blog> spec = (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            if (keyword != null && !keyword.isBlank()) {
+                String pattern = "%" + keyword + "%";
+                predicates.add(cb.or(
+                        cb.like(root.get("title"), pattern),
+                        cb.like(root.get("content"), pattern)
+                ));
+            }
+
+            if (categoryId != null) {
+                predicates.add(cb.equal(root.get("category").get("id"), categoryId));
+            }
+
+            if (tagIds != null && !tagIds.isEmpty()) {
+                predicates.add(root.join("tags").get("id").in(tagIds));
+            }
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+
+        return blogRepository.findAll(spec, pageable).map(this::toResponse);
     }
 
     // ===================== 分页查询所有博客（首页） =====================

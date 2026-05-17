@@ -149,10 +149,12 @@ const handleSubmit = async () => {
     }
     formOpen.value = false
     await fetchTags()
-  } catch {
+  } catch (err: unknown) {
+    const message =
+      err instanceof Error ? err.message : '请稍后再试。'
     window.dispatchEvent(
       new CustomEvent('toast', {
-        detail: { title: '操作失败', message: '请稍后再试。', type: 'error' },
+        detail: { title: '操作失败', message, type: 'error' },
       }),
     )
   } finally {

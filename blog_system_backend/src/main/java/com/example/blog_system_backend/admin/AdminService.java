@@ -18,12 +18,16 @@ import com.example.blog_system_backend.common.CommentNotFoundException;
 import com.example.blog_system_backend.tag.Tag;
 import com.example.blog_system_backend.tag.TagRepository;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.criteria.Predicate;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -54,9 +58,31 @@ public class AdminService {
         this.blogService = blogService;
     }
 
-    // 获取全站博客列表（管理员无权限限制）
-    public Page<BlogResponse> getAllBlogs(Pageable pageable) {
-        return blogRepository.findAll(pageable).map(this::toResponse);
+    // 获取全站博客列表（管理员无权限限制，支持组合筛选）
+    public Page<BlogResponse> getAllBlogs(Long categoryId, Collection<Long> tagIds, String keyword, Pageable pageable) {
+        Specification<Blog> spec = (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            if (keyword != null && !keyword.isBlank()) {
+                String pattern = "%" + keyword + "%";
+                predicates.add(cb.or(
+                        cb.like(root.get("title"), pattern),
+                        cb.like(root.get("content"), pattern)
+                ));
+            }
+
+            if (categoryId != null) {
+                predicates.add(cb.equal(root.get("category").get("id"), categoryId));
+            }
+
+            if (tagIds != null && !tagIds.isEmpty()) {
+                predicates.add(root.join("tags").get("id").in(tagIds));
+            }
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+
+        return blogRepository.findAll(spec, pageable).map(this::toResponse);
     }
 
     // 管理员编辑任意博客（跳过作者权限校验）

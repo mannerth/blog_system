@@ -14,6 +14,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/blogs")
@@ -42,28 +43,11 @@ public class BlogController {
             @RequestParam(required = false) String keyword,
             Pageable pageable
     ) {
-        // 搜索
-        if (keyword != null) {
-            return blogService.search(keyword, pageable);
-        }
+        Collection<Long> resolvedTagIds = (tagIds != null && !tagIds.isEmpty())
+                ? tagIds
+                : (tagId != null ? List.of(tagId) : null);
 
-        // 多标签查询
-        if (tagIds != null && !tagIds.isEmpty()) {
-            return blogService.getByTagIds(tagIds, pageable);
-        }
-
-        // 单标签查询
-        if (tagId != null) {
-            return blogService.getByTagId(tagId, pageable);
-        }
-
-        // 分类查询
-        if (categoryId != null) {
-            return blogService.getByCategoryId(categoryId, pageable);
-        }
-
-        // 默认查全部
-        return blogService.getAll(pageable);
+        return blogService.findAll(categoryId, resolvedTagIds, keyword, pageable);
     }
 
     @PostMapping

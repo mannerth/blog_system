@@ -98,8 +98,8 @@ public class CategoryService {
         if (name.isBlank()) {
             throw new IllegalArgumentException("Category's name must not be blank");
         }
-        if (name.length() < 3 || name.length() > 50) {
-            throw new IllegalArgumentException("Category's name length must be between 3 and 50");
+        if ( name.length() > 50 ) {
+            throw new IllegalArgumentException("Category's name length must less than 50");
         }
     }
 

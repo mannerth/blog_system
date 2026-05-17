@@ -12,6 +12,7 @@
         <div class="user-area">
           <template v-if="isAuthenticated">
             <RouterLink class="ghost-button" to="/my-blogs">我的博客</RouterLink>
+            <RouterLink v-if="isAdmin" class="ghost-button" to="/admin">管理后台</RouterLink>
             <RouterLink class="solid-button" to="/editor">发布文章</RouterLink>
             <div class="user-chip">
               <span class="user-chip__avatar">{{ userInitial }}</span>
@@ -59,6 +60,7 @@ const authStore = useAuthStore()
 const searchKeyword = ref('')
 
 const isAuthenticated = computed(() => authStore.isAuthenticated)
+const isAdmin = computed(() => authStore.isAdmin)
 const userName = computed(() => authStore.user?.username ?? '已登录')
 const userInitial = computed(() => userName.value.slice(0, 1))
 

@@ -3,10 +3,11 @@ package com.example.blog_system_backend.blog;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import java.util.Collection;
 
-public interface BlogRepository extends JpaRepository<Blog, Long> {
+public interface BlogRepository extends JpaRepository<Blog, Long>, JpaSpecificationExecutor<Blog> {
 
     // 1. 按用户ID分页查询博客（/users/me/blogs 和 /users/{user_id}/blogs 共用）
     Page<Blog> findByUserId(Long userId, Pageable pageable);

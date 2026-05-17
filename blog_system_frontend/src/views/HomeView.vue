@@ -16,15 +16,15 @@
         placeholder="全部分类"
         :options="categoryOptions"
       />
-      <BaseSelect
-        v-model="filters.tag"
-        label="标签"
-        placeholder="全部标签"
-        :options="tagOptions"
-      />
       <BaseSelect v-model="filters.sort" :options="sortOptions" placeholder="排序" />
       <BaseButton variant="ghost" @click="resetFilters">重置筛选</BaseButton>
     </div>
+
+    <TagChipSelector
+      v-model="filters.tagIds"
+      label="标签"
+      :options="tagChipOptions"
+    />
 
     <LoadingState v-if="loading" />
     <EmptyState v-else-if="!blogs.length" title="暂无博客" description="换个关键词或清除筛选试试。">
@@ -57,6 +57,7 @@ import BaseSelect, { type SelectOption } from '@/components/base/BaseSelect.vue'
 import BasePagination from '@/components/base/BasePagination.vue'
 import EmptyState from '@/components/base/EmptyState.vue'
 import LoadingState from '@/components/base/LoadingState.vue'
+import TagChipSelector from '@/components/base/TagChipSelector.vue'
 import { listBlogs, type Blog } from '@/api/blogs'
 import { listCategories } from '@/api/categories'
 import { listTags } from '@/api/tags'
@@ -72,7 +73,7 @@ const size = ref(10)
 
 const filters = reactive({
   category: '',
-  tag: '',
+  tagIds: [] as number[],
   keyword: '',
   sort: 'createAt,desc',
 })
@@ -85,7 +86,7 @@ const sortOptions: SelectOption[] = [
 ]
 
 const categoryOptions = ref<SelectOption[]>([])
-const tagOptions = ref<SelectOption[]>([])
+const tagChipOptions = ref<SelectOption[]>([])
 const queryKey = ref('')
 const keywordTimer = ref<number | null>(null)
 
@@ -96,7 +97,13 @@ const syncFromQuery = () => {
   page.value = Number.isFinite(nextPage) ? nextPage : 1
   size.value = Number.isFinite(nextSize) ? nextSize : 10
   filters.category = typeof query.category_id === 'string' ? query.category_id : ''
-  filters.tag = typeof query.tag === 'string' ? query.tag : ''
+
+  if (typeof query.tagIds === 'string') {
+    filters.tagIds = query.tagIds.split(',').map(Number).filter((n) => !Number.isNaN(n) && n > 0)
+  } else {
+    filters.tagIds = []
+  }
+
   filters.keyword = typeof query.keyword === 'string' ? query.keyword : ''
   const rawSort = typeof query.sort === 'string' ? query.sort : ''
   if (rawSort === '-created_at') {
@@ -113,17 +120,18 @@ const syncFromQuery = () => {
 }
 
 const syncToQuery = () => {
-  const nextQuery = {
+  const nextQuery: Record<string, string | number | undefined> = {
     page: page.value,
     size: size.value,
     category_id: filters.category || undefined,
-    tag: filters.tag || undefined,
     keyword: filters.keyword || undefined,
     sort: filters.sort || undefined,
   }
+  if (filters.tagIds.length > 0) {
+    nextQuery.tagIds = filters.tagIds.join(',')
+  }
   const nextKey = JSON.stringify(nextQuery)
   if (nextKey === queryKey.value) return
-  queryKey.value = nextKey
   router.replace({ query: nextQuery })
 }
 
@@ -134,7 +142,7 @@ const fetchBlogs = async () => {
       page: page.value,
       size: size.value,
       category_id: filters.category || undefined,
-      tag: filters.tag || undefined,
+      tagIds: filters.tagIds.length > 0 ? filters.tagIds : undefined,
       keyword: filters.keyword,
       sort: filters.sort || undefined,
     })
@@ -163,16 +171,13 @@ const fetchFilters = async () => {
         value: String(category.id ?? ''),
       })),
     ]
-    tagOptions.value = [
-      { label: '全部标签', value: '' },
-      ...tags.map((tag) => ({
-        label: tag.name ?? '标签',
-        value: String(tag.id ?? ''),
-      })),
-    ]
+    tagChipOptions.value = tags.map((tag) => ({
+      label: tag.name ?? '标签',
+      value: tag.id ?? 0,
+    }))
   } catch {
     categoryOptions.value = [{ label: '全部分类', value: '' }]
-    tagOptions.value = [{ label: '全部标签', value: '' }]
+    tagChipOptions.value = []
   }
 }
 
@@ -187,7 +192,7 @@ const handleSizeChange = (nextSize: number) => {
 
 const resetFilters = () => {
   filters.category = ''
-  filters.tag = ''
+  filters.tagIds = []
   filters.keyword = ''
   filters.sort = 'createAt,desc'
   page.value = 1
@@ -206,22 +211,28 @@ watch(
       }, 350)
       return
     }
-    if (next.category !== prev.category || next.tag !== prev.tag || next.sort !== prev.sort) {
+    if (next.category !== prev.category || !arrayEquals(next.tagIds, prev.tagIds) || next.sort !== prev.sort) {
       page.value = 1
     }
     syncToQuery()
   },
 )
 
+const arrayEquals = (a: number[], b: number[]) => {
+  if (a.length !== b.length) return false
+  const sorted = (arr: number[]) => [...arr].sort((x, y) => x - y)
+  return sorted(a).every((v, i) => v === sorted(b)[i])
+}
+
 watch(
   () => route.query,
   () => {
     syncFromQuery()
-  const currentKey = JSON.stringify({
+    const currentKey = JSON.stringify({
       page: page.value,
       size: size.value,
       category_id: filters.category || undefined,
-      tag: filters.tag || undefined,
+      tagIds: filters.tagIds.length > 0 ? filters.tagIds.join(',') : undefined,
       keyword: filters.keyword || undefined,
       sort: filters.sort || undefined,
     })
