@@ -1,4 +1,4 @@
-# Blog System（潮汐 Blue Green Blog）
+# Blog System（星运 Stars）
 
 前后端分离的博客系统。前端 Vue 3 + Vite SPA，后端 Spring Boot 4.0.5 API。
 
