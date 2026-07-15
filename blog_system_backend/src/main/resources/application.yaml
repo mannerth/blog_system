@@ -23,3 +23,10 @@ app:
   admin:
     username: ${ADMIN_USERNAME:}
     password: ${ADMIN_PASSWORD:}
+
+image:
+  foofish:
+    base-url: ${IMAGE_FOOFISH_BASE_URL:https://image.foofish.work/api/v1}
+    email: ${IMAGE_FOOFISH_EMAIL:}
+    password: ${IMAGE_FOOFISH_PASSWORD:}
+    token: ${IMAGE_FOOFISH_TOKEN:}
