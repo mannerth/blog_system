@@ -1,35 +1,86 @@
 @import './base.css';
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+:root {
+  --font-sans: 'Space Grotesk', 'Manrope', 'Noto Sans', sans-serif;
+  --font-display: 'Fraunces', 'Space Grotesk', 'Noto Serif', serif;
+
+  --color-primary: #1c9b8a;
+  --color-primary-strong: #0f6f64;
+  --color-primary-soft: #c9f0e8;
+
+  --color-background: #f3f8f7;
+  --color-surface: #ffffff;
+  --color-surface-muted: #e9f3f1;
+
+  --color-heading: #0d2a2f;
+  --color-text: #102c31;
+  --color-text-muted: #4b6d72;
+
+  --color-border: rgba(16, 44, 49, 0.12);
+  --shadow-sm: 0 6px 16px rgba(16, 44, 49, 0.12);
+  --shadow-md: 0 18px 36px rgba(16, 44, 49, 0.14);
+
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+
+  --page-padding: clamp(20px, 4vw, 48px);
+  --content-width: 1200px;
+}
+
+body {
+  font-family: var(--font-sans);
+  color: var(--color-text);
+  background:
+    radial-gradient(1000px 500px at 5% -10%, rgba(28, 155, 138, 0.18), transparent 55%),
+    radial-gradient(900px 520px at 100% 0%, rgba(28, 155, 138, 0.12), transparent 55%),
+    var(--color-background);
+  letter-spacing: 0.01em;
+  line-height: 1.7;
+}
 
 #app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  font-weight: normal;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
-a,
-.green {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-display);
+  color: var(--color-heading);
+  letter-spacing: -0.02em;
+  margin-bottom: 0.6em;
+}
+
+p {
+  margin-bottom: 1em;
+  color: var(--color-text);
+}
+
+a {
+  color: var(--color-primary);
   text-decoration: none;
-  color: hsla(160, 100%, 37%, 1);
-  transition: 0.4s;
-  padding: 3px;
+  transition: color 0.2s ease, opacity 0.2s ease;
 }
 
-@media (hover: hover) {
-  a:hover {
-    background-color: hsla(160, 100%, 37%, 0.2);
-  }
+a:hover {
+  color: var(--color-primary-strong);
 }
 
-@media (min-width: 1024px) {
-  body {
-    display: flex;
-    place-items: center;
-  }
+button,
+input,
+textarea,
+select {
+  font-family: inherit;
+  color: inherit;
+}
 
-  #app {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 0 2rem;
-  }
+::selection {
+  background: rgba(28, 155, 138, 0.25);
 }

@@ -93,8 +93,8 @@ public class TagService {
         if (name.isBlank()) {
             throw new IllegalArgumentException("Tag's name must not be blank");
         }
-        if (name.length() < 3 || name.length() > 50) {
-            throw new IllegalArgumentException("Tag's name length must be between 3 and 50");
+        if (name.length() > 50) {
+            throw new IllegalArgumentException("Tag's name length must be between 1 and 50");
         }
     }
 

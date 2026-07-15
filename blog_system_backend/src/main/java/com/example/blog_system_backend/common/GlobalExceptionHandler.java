@@ -1,6 +1,9 @@
 package com.example.blog_system_backend.common;
 
 import java.time.Instant;
+
+import jakarta.persistence.EntityNotFoundException;
+
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.http.HttpStatus;
@@ -34,8 +37,15 @@ public class GlobalExceptionHandler {
         ));
     }
 
-    @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleUserNotFound(UserNotFoundException ex) {
+    @ExceptionHandler({
+        BlogNotFoundException.class,
+        CategoryNotFoundException.class,
+        TagNotFoundException.class,
+        CommentNotFoundException.class,
+        UserNotFoundException.class,
+        EntityNotFoundException.class,
+    })
+    public ResponseEntity<ErrorResponse> handleNotFound(RuntimeException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse(
                 HttpStatus.NOT_FOUND.value(),
                 ex.getMessage(),
@@ -43,10 +53,27 @@ public class GlobalExceptionHandler {
         ));
     }
 
-    @ExceptionHandler(UsernameAlreadyExistsException.class)
-    public ResponseEntity<ErrorResponse> handleUsernameAlreadyExists(UsernameAlreadyExistsException ex) {
+    @ExceptionHandler({
+        UsernameAlreadyExistsException.class,
+        CategoryNameAlreadyExistsException.class,
+        TagNameAlreadyExistsException.class,
+    })
+    public ResponseEntity<ErrorResponse> handleConflict(RuntimeException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErrorResponse(
                 HttpStatus.CONFLICT.value(),
+                ex.getMessage(),
+                Instant.now()
+        ));
+    }
+
+    @ExceptionHandler({
+        BlogNotAllowedToModifyException.class,
+        BlogNotAllowedToDeleteException.class,
+        ChildCommentNotAllowedToAddCommentException.class,
+    })
+    public ResponseEntity<ErrorResponse> handleForbidden(RuntimeException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErrorResponse(
+                HttpStatus.FORBIDDEN.value(),
                 ex.getMessage(),
                 Instant.now()
         ));
